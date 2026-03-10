@@ -72,10 +72,17 @@ jobs:
 
             adb forward tcp:7001 tcp:7001
 
+            echo "Fixing missing default route..."
+            adb root
+            sleep 2
+            adb shell "ip route add default via 10.0.2.2 dev eth0"
+            sleep 2
+            adb unroot
+            sleep 2
+
             echo "Checking connectivity..."
-            adb shell "ping -c 1 -W 5 10.0.2.2" || echo "WARNING: Can't reach gateway"
-            adb shell "toybox wget -q -O /dev/null http://connectivitycheck.gstatic.com/generate_204 2>&1" && echo "Internet OK" || echo "WARNING: No internet"
-            adb shell "ip route"
+            adb shell "ping -c 3 -W 5 8.8.8.8" || echo "WARNING: No internet"
+            adb shell "ping -c 1 google.com" || echo "WARNING: DNS not working"
 
             echo "Launching app to verify..."
             adb shell am start -n ${{ env.APP_ID }}/org.digitalgreen.farmer.chatbot.MainActivity
