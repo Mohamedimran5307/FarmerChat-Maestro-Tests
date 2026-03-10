@@ -48,7 +48,7 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -dns-server 8.8.8.8
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
           script: |
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
@@ -72,15 +72,9 @@ jobs:
 
             adb forward tcp:7001 tcp:7001
 
-            echo "Fixing emulator network..."
-            adb shell setprop net.dns1 8.8.8.8
-            adb shell setprop net.dns2 8.8.4.4
-            sleep 2
-
-            echo "Checking connectivity (HTTP)..."
-            adb shell "toybox wget -O /dev/null http://google.com 2>&1" || echo "WARNING: HTTP to google.com failed"
-            adb shell "toybox wget -O /dev/null http://8.8.8.8 2>&1" || echo "WARNING: Direct IP HTTP failed"
-            adb shell "getprop net.dns1"
+            echo "Checking connectivity..."
+            adb shell "ping -c 1 -W 5 10.0.2.2" || echo "WARNING: Can't reach gateway"
+            adb shell "toybox wget -q -O /dev/null http://connectivitycheck.gstatic.com/generate_204 2>&1" && echo "Internet OK" || echo "WARNING: No internet"
             adb shell "ip route"
 
             echo "Launching app to verify..."
