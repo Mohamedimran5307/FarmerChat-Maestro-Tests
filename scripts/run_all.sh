@@ -111,8 +111,9 @@ prepare_device() {
 
     for attempt in 1 2 3; do
         local error_visible
-        error_visible=$(adb -s "$DEVICE" exec-out uiautomator dump /dev/tty 2>/dev/null | grep -c "Try again" || echo "0")
-        if [ "$error_visible" -gt 0 ]; then
+        error_visible=$(adb -s "$DEVICE" exec-out uiautomator dump /dev/tty 2>/dev/null | grep -c "Try again" | tr -d '[:space:]' || echo "0")
+        error_visible="${error_visible:-0}"
+        if [ "$error_visible" -gt 0 ] 2>/dev/null; then
             echo "  [retry $attempt] Error screen detected, restarting app..."
             adb -s "$DEVICE" shell am force-stop "$APP_ID" 2>/dev/null
             sleep 5
@@ -124,8 +125,9 @@ prepare_device() {
     done
 
     local launched
-    launched=$(adb -s "$DEVICE" shell dumpsys activity activities 2>/dev/null | grep -c "$APP_ID" || echo "0")
-    if [ "$launched" -lt 1 ]; then
+    launched=$(adb -s "$DEVICE" shell dumpsys activity activities 2>/dev/null | grep -c "$APP_ID" | tr -d '[:space:]' || echo "0")
+    launched="${launched:-0}"
+    if [ "$launched" -lt 1 ] 2>/dev/null; then
         echo "  [retry] App not detected, relaunching..."
         adb -s "$DEVICE" shell am force-stop "$APP_ID" 2>/dev/null
         sleep 3
