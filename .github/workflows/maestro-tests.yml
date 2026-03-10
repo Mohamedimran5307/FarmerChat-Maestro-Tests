@@ -72,6 +72,16 @@ jobs:
 
             adb forward tcp:7001 tcp:7001
 
+            echo "Fixing emulator network..."
+            adb shell svc wifi disable
+            sleep 2
+            adb shell svc wifi enable
+            sleep 5
+            adb shell cmd connectivity airplane-mode enable
+            sleep 2
+            adb shell cmd connectivity airplane-mode disable
+            sleep 5
+
             echo "Checking connectivity..."
             adb shell ping -c 3 8.8.8.8 || echo "WARNING: No internet on emulator!"
             adb shell ping -c 1 google.com || echo "WARNING: DNS not working!"
