@@ -26,10 +26,12 @@ pipeline {
                     def running = sh(script: "adb devices | grep -q emulator-5554", returnStatus: true)
                     if (running != 0) {
                         echo 'Starting emulator in headless mode...'
-                        sh "nohup ${ANDROID_HOME}/emulator/emulator -avd ${AVD_NAME} -no-window -no-audio -no-boot-anim -gpu host &"
-                        sh 'adb wait-for-device'
-                        sh "adb shell 'while [[ -z \\$(getprop sys.boot_completed) ]]; do sleep 2; done;'"
-                        sh 'sleep 10'
+                        sh '''
+                            nohup $ANDROID_HOME/emulator/emulator -avd $AVD_NAME -no-window -no-audio -no-boot-anim -gpu host &
+                            adb wait-for-device
+                            adb shell 'while [ -z $(getprop sys.boot_completed) ]; do sleep 2; done;'
+                            sleep 10
+                        '''
                         echo 'Emulator booted.'
                     } else {
                         echo 'Emulator already running.'
