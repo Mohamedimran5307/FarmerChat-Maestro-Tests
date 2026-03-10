@@ -13,7 +13,8 @@ START_TIME=$(date +%s)
 
 NEW_PHONE_NUMBER="777766666"
 
-mkdir -p "$RUN_DIR"
+RECORDINGS_DIR="$RUN_DIR/recordings"
+mkdir -p "$RUN_DIR" "$RECORDINGS_DIR"
 
 echo "============================================"
 echo "  FarmerChat Maestro Automation Suite"
@@ -24,7 +25,34 @@ echo "============================================"
 TOTAL=0
 PASSED=0
 FAILED=0
-declare -a R_STATUS R_TCNAME R_LOGFILE R_DURATION
+declare -a R_STATUS R_TCNAME R_LOGFILE R_DURATION R_VIDEO
+RECORDING_PID=""
+
+start_recording() {
+    local safe_name
+    safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
+    adb -s "$DEVICE" shell rm -f /sdcard/test_recording.mp4 2>/dev/null
+    adb -s "$DEVICE" shell screenrecord --time-limit 180 --size 720x1560 /sdcard/test_recording.mp4 &
+    RECORDING_PID=$!
+}
+
+stop_recording() {
+    local safe_name
+    safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
+    adb -s "$DEVICE" shell "kill \$(pidof screenrecord)" 2>/dev/null || true
+    sleep 3
+    adb -s "$DEVICE" pull /sdcard/test_recording.mp4 "$RECORDINGS_DIR/${safe_name}.mp4" > /dev/null 2>&1
+    local pulled=$?
+    adb -s "$DEVICE" shell rm -f /sdcard/test_recording.mp4 2>/dev/null
+    kill "$RECORDING_PID" 2>/dev/null || true
+    wait "$RECORDING_PID" 2>/dev/null || true
+    RECORDING_PID=""
+    if [ $pulled -eq 0 ] && [ -f "$RECORDINGS_DIR/${safe_name}.mp4" ]; then
+        echo "recordings/${safe_name}.mp4"
+    else
+        echo ""
+    fi
+}
 
 ENV_ARGS=(
   -e APP_ID="$APP_ID"
@@ -121,6 +149,8 @@ run_flow() {
 
     prepare_device
 
+    start_recording "$test_name"
+
     if maestro --device "$DEVICE" test "${ENV_ARGS[@]}" "$flow_file" \
         > "$log_file" 2>&1; then
         PASSED=$((PASSED + 1))
@@ -129,6 +159,9 @@ run_flow() {
         FAILED=$((FAILED + 1))
         STATUS="FAILED"
     fi
+
+    local video_path
+    video_path=$(stop_recording "$test_name")
 
     local tc_end
     tc_end=$(date +%s)
@@ -139,6 +172,7 @@ run_flow() {
     R_TCNAME+=("$test_name")
     R_LOGFILE+=("${test_name}.log")
     R_DURATION+=("${duration}s")
+    R_VIDEO+=("$video_path")
 }
 
 run_network_test() {
@@ -152,6 +186,8 @@ run_network_test() {
     echo ""
     echo "--- [$TOTAL] $test_name ---"
 
+    start_recording "$test_name"
+
     if bash "$script_file" > "$log_file" 2>&1; then
         PASSED=$((PASSED + 1))
         STATUS="PASSED"
@@ -160,6 +196,9 @@ run_network_test() {
         STATUS="FAILED"
         adb -s "$DEVICE" shell cmd connectivity airplane-mode disable 2>/dev/null || true
     fi
+
+    local video_path
+    video_path=$(stop_recording "$test_name")
 
     local tc_end
     tc_end=$(date +%s)
@@ -170,6 +209,7 @@ run_network_test() {
     R_TCNAME+=("$test_name")
     R_LOGFILE+=("${test_name}.log")
     R_DURATION+=("${duration}s")
+    R_VIDEO+=("$video_path")
 }
 
 SKIP_FILES="33_error_screen_assert|33_error_screen_retry|34_chat_error_offline|34_chat_error_onboarding|34_chat_error_recovery|35_chat_history_retry_setup|35_chat_history_retry_assert|35_chat_history_retry_recovery"
@@ -283,6 +323,10 @@ cat >> "$REPORT_FILE" << HTMLEOF
   .log-content .completed { color: #4ade80; }
   .log-content .failed-line { color: #f87171; font-weight: bold; }
   .log-content .skipped { color: #94a3b8; }
+  .video-cell video { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .video-cell a { color: #3b82f6; font-size: 12px; font-weight: 600; text-decoration: none; }
+  .video-cell a:hover { text-decoration: underline; }
+  .no-video { color: #94a3b8; font-size: 12px; }
   .footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
   .coverage { padding: 0 40px 24px; }
   .coverage h2 { font-size: 18px; margin-bottom: 12px; color: #1a1a2e; }
@@ -323,7 +367,7 @@ cat >> "$REPORT_FILE" << HTMLEOF
 </div>
 <div class="table-container">
 <table>
-<thead><tr><th>#</th><th>Test Case</th><th>Status</th><th>Duration</th><th>Execution Log</th></tr></thead>
+<thead><tr><th>#</th><th>Test Case</th><th>Status</th><th>Duration</th><th>Recording</th><th>Execution Log</th></tr></thead>
 <tbody>
 HTMLEOF
 
@@ -332,6 +376,7 @@ for i in "${!R_STATUS[@]}"; do
     tcname="${R_TCNAME[$i]}"
     logfile="${R_LOGFILE[$i]}"
     duration="${R_DURATION[$i]}"
+    video_file="${R_VIDEO[$i]:-}"
     idx=$((i + 1))
     status_lower=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 
@@ -356,12 +401,20 @@ for i in "${!R_STATUS[@]}"; do
         log_html="<span class=\"log-file\">No log</span>"
     fi
 
+    video_html=""
+    if [ -n "$video_file" ] && [ -f "$RUN_DIR/$video_file" ]; then
+        video_html="<div class=\"video-cell\"><details><summary>▶ Watch</summary><video width=\"280\" controls preload=\"none\" poster=\"\"><source src=\"$video_file\" type=\"video/mp4\">Browser does not support video.</video></details><br><a href=\"$video_file\" download>⬇ Download</a></div>"
+    else
+        video_html="<span class=\"no-video\">—</span>"
+    fi
+
     cat >> "$REPORT_FILE" << ROWEOF
 <tr>
   <td><strong>$tc_num</strong></td>
   <td>$tcname</td>
   <td><span class="badge $status_lower">$status</span></td>
   <td class="duration">$duration</td>
+  <td>$video_html</td>
   <td>$log_html</td>
 </tr>
 ROWEOF
@@ -376,7 +429,9 @@ cat >> "$REPORT_FILE" << HTMLEOF
 </html>
 HTMLEOF
 
+VIDEO_COUNT=$(ls "$RECORDINGS_DIR"/*.mp4 2>/dev/null | wc -l | tr -d ' ')
 echo ""
-echo "Report: $REPORT_FILE"
-echo "Logs:   $RUN_DIR/"
+echo "Report:     $REPORT_FILE"
+echo "Logs:       $RUN_DIR/"
+echo "Recordings: $RECORDINGS_DIR/ ($VIDEO_COUNT videos)"
 echo ""
