@@ -6,12 +6,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 REPORT_DIR="$PROJECT_DIR/reports"
 TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
 RUN_DIR="$REPORT_DIR/$TIMESTAMP"
-if [ -n "${MAESTRO_DEVICE:-}" ]; then
-    DEVICE="$MAESTRO_DEVICE"
-else
-    DEVICE=$(adb devices | grep -E "emulator-[0-9]+" | head -1 | awk '{print $1}')
-    DEVICE="${DEVICE:-emulator-5554}"
-fi
+DEVICE="${MAESTRO_DEVICE:-emulator-5554}"
 APP_ID="org.digitalgreen.farmer.chat"
 ACTIVITY="org.digitalgreen.farmer.chatbot.MainActivity"
 START_TIME=$(date +%s)
