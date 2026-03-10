@@ -72,7 +72,16 @@ jobs:
 
             adb forward tcp:7001 tcp:7001
 
-            echo "Running test suite..."
+            echo "Checking connectivity..."
+            adb shell ping -c 3 8.8.8.8 || echo "WARNING: No internet on emulator!"
+            adb shell ping -c 1 google.com || echo "WARNING: DNS not working!"
+
+            echo "Launching app to verify..."
+            adb shell am start -n ${{ env.APP_ID }}/org.digitalgreen.farmer.chatbot.MainActivity
+            sleep 15
+            adb exec-out screencap -p > /tmp/app_launch_check.png
+            echo "Screenshot saved. Starting test suite..."
+
             chmod +x scripts/run_all.sh
             bash scripts/run_all.sh
 
@@ -83,6 +92,14 @@ jobs:
           name: maestro-test-report-${{ github.run_number }}
           path: reports/
           retention-days: 30
+
+      - name: Upload Launch Screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-launch-screenshot-${{ github.run_number }}
+          path: /tmp/app_launch_check.png
+          retention-days: 7
 
       - name: Upload Maestro Debug Logs
         if: failure()
