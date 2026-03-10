@@ -1,0 +1,72 @@
+appId: com.android.settings
+---
+- setLocation:
+    latitude: 0.4717
+    longitude: 35.9650
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 60000
+
+- tapOn:
+    id: "language_item_${LANGUAGE_CODE}"
+- waitForAnimationToEnd
+- tapOn:
+    id: "language_start_button"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        id: "language_start_button"
+    commands:
+      - tapOn:
+          id: "language_start_button"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        text: "Skip for now"
+    commands:
+      - tapOn: "Skip for now"
+
+- runFlow:
+    when:
+      visible:
+        id: "name_save_button"
+    commands:
+      - tapOn:
+          id: "name_input"
+      - longPressOn:
+          id: "name_input"
+      - runFlow:
+          when:
+            visible:
+              text: "Select all"
+          commands:
+            - tapOn: "Select all"
+      - eraseText: 1
+      - inputText: "${USER_NAME}"
+      - hideKeyboard
+      - tapOn:
+          id: "name_save_button"
+
+- runFlow:
+    when:
+      visible:
+        id: "location_interstitial_skip"
+    commands:
+      - tapOn:
+          id: "location_interstitial_skip"
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 30000

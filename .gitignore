@@ -1,0 +1,15 @@
+# Test reports (generated at runtime)
+reports/
+
+# Maestro debug artifacts
+.maestro/
+
+# macOS
+.DS_Store
+
+# APK files (too large for git, use GitHub Releases or artifact storage)
+*.apk
+
+# Temp files
+*.log
+*.tmp

@@ -1,0 +1,10 @@
+appId: com.android.settings
+name: "TC34 - Chat Error Onboarding"
+tags:
+  - chat
+  - error
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+- assertVisible:
+    id: "home_screen"

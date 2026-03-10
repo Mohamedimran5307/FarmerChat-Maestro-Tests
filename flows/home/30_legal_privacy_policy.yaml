@@ -1,0 +1,31 @@
+appId: com.android.settings
+name: "TC32 - Legal Dialog Privacy Policy on Language Screen"
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+    
+- setLocation:
+    latitude: 0.4717
+    longitude: 35.9650
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+# ── Tap Privacy Policy link ──
+- tapOn:
+    id: "language_privacy_link"
+
+# ── Assert Privacy Policy dialog opens ──
+- extendedWaitUntil:
+    visible:
+      text: "Privacy Policy"
+    timeout: 15000

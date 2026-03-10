@@ -1,0 +1,38 @@
+appId: com.android.settings
+name: "TC13 - Type Question and Share AI Response"
+tags:
+  - home
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to prevent maize rust disease"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "chat_share_button"
+    direction: DOWN
+    timeout: 90000
+- tapOn:
+    id: "chat_share_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sharing image"
+    timeout: 15000
+- assertVisible:
+    id: "android:id/chooser_header"

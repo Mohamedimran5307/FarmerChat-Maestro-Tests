@@ -1,0 +1,20 @@
+appId: com.android.settings
+name: "TC34 - Chat Error Recovery"
+tags:
+  - chat
+  - error
+  - regression
+---
+- tapOn:
+    id: "chat_inline_retry_button"
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+- scrollUntilVisible:
+    element:
+      text: ".*[Rr]elated.*"
+    direction: DOWN
+    timeout: 90000
+- assertVisible:
+    text: ".*[Rr]elated.*"

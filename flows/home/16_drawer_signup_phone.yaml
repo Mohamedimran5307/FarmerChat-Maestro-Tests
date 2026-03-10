@@ -1,0 +1,30 @@
+appId: com.android.settings
+name: "TC19 - Drawer Sign Up with Phone Number"
+tags:
+  - navigation
+  - auth
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sign up with phone number"
+    timeout: 10000
+- tapOn: "Sign up with phone number"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_screen"
+    timeout: 10000
+- assertVisible:
+    id: "auth_phone_input"

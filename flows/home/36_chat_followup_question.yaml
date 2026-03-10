@@ -1,0 +1,59 @@
+appId: com.android.settings
+name: "TC35 - Chat Follow-up Question"
+tags:
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# Ask first question
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to grow maize in Kenya"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+# Wait for first AI response
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ".*[Rr]elated.*"
+    direction: DOWN
+    timeout: 90000
+
+# Type follow-up question using Type button at bottom of chat
+- scrollUntilVisible:
+    element:
+      id: "home_type_button"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "home_type_button"
+- inputText: "What fertilizer should I use"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+# Assert second AI response with related questions
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+- scrollUntilVisible:
+    element:
+      text: ".*[Rr]elated.*"
+    direction: DOWN
+    timeout: 90000
+- assertVisible:
+    text: ".*[Rr]elated.*"

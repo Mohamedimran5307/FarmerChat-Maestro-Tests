@@ -1,0 +1,89 @@
+appId: com.android.settings
+name: "TC34 - Photo Query from Camera"
+tags:
+  - chat
+  - camera
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Tap Photo button ──
+- tapOn:
+    id: "home_photo_button"
+
+# ── Tap Camera option ──
+- extendedWaitUntil:
+    visible:
+      text: ".*[Cc]amera.*"
+    timeout: 5000
+- tapOn:
+    text: ".*[Cc]amera.*"
+
+# ── Camera app opens - tap shutter button ──
+- extendedWaitUntil:
+    visible:
+      id: "com.android.camera2:id/shutter_button"
+    timeout: 10000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "com.android.camera2:id/shutter_button"
+    commands:
+      - tapOn:
+          id: "com.android.camera2:id/shutter_button"
+
+# ── Fallback: try generic shutter/capture button ──
+- runFlow:
+    when:
+      visible:
+        text: ".*[Ss]hutter.*"
+    commands:
+      - tapOn:
+          text: ".*[Ss]hutter.*"
+
+# ── Confirm/accept the captured photo ──
+- extendedWaitUntil:
+    visible:
+      id: "com.android.camera2:id/done_button"
+    timeout: 10000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "com.android.camera2:id/done_button"
+    commands:
+      - tapOn:
+          id: "com.android.camera2:id/done_button"
+
+# ── Fallback: try checkmark or OK button ──
+- runFlow:
+    when:
+      visible:
+        text: ".*OK.*"
+    commands:
+      - tapOn:
+          text: ".*OK.*"
+
+# ── Back in FarmerChat - tap Send button ──
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 15000
+- tapOn:
+    id: "text_input_send_button"
+
+# ── Wait for AI response ──
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+
+# ── Scroll to related questions and assert ──
+- scrollUntilVisible:
+    element:
+      text: ".*[Rr]elated.*"
+    direction: DOWN
+    timeout: 90000
+- assertVisible:
+    text: ".*[Rr]elated.*"

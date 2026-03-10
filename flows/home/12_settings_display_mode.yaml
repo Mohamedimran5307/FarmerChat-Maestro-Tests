@@ -1,0 +1,32 @@
+appId: com.android.settings
+name: "TC15 - Settings Display Mode Day Night Auto"
+tags:
+  - settings
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_settings_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_settings_button"
+- extendedWaitUntil:
+    visible:
+      id: "settings_screen"
+    timeout: 5000
+
+- tapOn:
+    id: "settings_appearance_day"
+- assertVisible: "FarmerChat is always in light mode"
+
+- tapOn:
+    id: "settings_appearance_night"
+- assertVisible: "FarmerChat is always in dark mode"
+
+- tapOn:
+    id: "settings_appearance_auto"
+- assertVisible: "FarmerChat adjusts with your phone settings"

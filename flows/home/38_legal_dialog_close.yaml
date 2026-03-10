@@ -1,0 +1,57 @@
+appId: com.android.settings
+name: "TC37 - Legal Dialog Open and Close"
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+    
+- setLocation:
+    latitude: 0.4717
+    longitude: 35.9650
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+# Open Terms of Use dialog
+- tapOn:
+    id: "language_terms_link"
+- extendedWaitUntil:
+    visible:
+      text: "Terms of Use"
+    timeout: 15000
+- assertVisible:
+    text: "Terms of Use"
+
+# Close dialog via back press
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 10000
+
+# Open Privacy Policy dialog
+- tapOn:
+    id: "language_privacy_link"
+- extendedWaitUntil:
+    visible:
+      text: "Privacy Policy"
+    timeout: 15000
+- assertVisible:
+    text: "Privacy Policy"
+
+# Close dialog via back press
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 10000
+- assertVisible:
+    id: "language_start_button"

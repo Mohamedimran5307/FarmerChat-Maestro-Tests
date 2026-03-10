@@ -1,0 +1,48 @@
+appId: com.android.settings
+name: "TC11 - Photo Query from Gallery and AI Response"
+tags:
+  - home
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_photo_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Photos"
+    timeout: 10000
+- tapOn: "Photos"
+
+- runFlow:
+    when:
+      visible:
+        text: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
+
+- extendedWaitUntil:
+    visible:
+      text: "Photo taken on.*"
+    timeout: 15000
+- tapOn: "Photo taken on.*"
+
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 10000
+- tapOn:
+    id: "text_input_send_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 90000
+- scrollUntilVisible:
+    element:
+      text: "Related questions"
+    direction: DOWN
+    timeout: 90000
+- assertVisible: "Related questions"

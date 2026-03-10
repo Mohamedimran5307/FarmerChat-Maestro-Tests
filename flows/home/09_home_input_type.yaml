@@ -1,0 +1,75 @@
+appId: com.android.settings
+name: "TC10 - Verify Gender Question Card on Home Feed"
+tags:
+  - home
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sign up with phone number"
+    timeout: 10000
+- tapOn: "Sign up with phone number"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- eraseText: 20
+- inputText: ${NEW_PHONE_NUMBER}
+- extendedWaitUntil:
+    visible:
+      text: "Send via SMS"
+    timeout: 5000
+- tapOn: "Send via SMS"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: ${OTP_CODE}
+- tapOn:
+    id: "auth_submit_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_continue"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+- runFlow: ../../helpers/weather_share_location_and_back_home.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home_feed_list"
+    timeout: 15000
+
+- scrollUntilVisible:
+    element:
+      text: ".*select your gender.*"
+    direction: DOWN
+    timeout: 60000
+    centerElement: true
+- assertVisible: ".*select your gender.*"
+- assertVisible: "Male"
+- assertVisible: "Female"
+- assertVisible: "Other"

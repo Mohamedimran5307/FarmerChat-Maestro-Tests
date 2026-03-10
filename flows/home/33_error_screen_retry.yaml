@@ -1,0 +1,12 @@
+appId: com.android.settings
+name: "TC33 - Error Retry Recovery"
+tags:
+  - error
+  - regression
+---
+- tapOn:
+    id: "error_retry_button"
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000

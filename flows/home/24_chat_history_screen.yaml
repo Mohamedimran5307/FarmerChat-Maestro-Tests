@@ -1,0 +1,109 @@
+appId: com.android.settings
+name: "TC26 - Chat History Screen View and Open Conversation"
+tags:
+  - home
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Log in to enable chat history ──
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sign up with phone number"
+    timeout: 10000
+- tapOn: "Sign up with phone number"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- inputText: "7013733824"
+- tapOn: "Send via SMS"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: "1111"
+- tapOn:
+    id: "auth_submit_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_continue"
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Ask a question to create chat history ──
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to grow maize in Kenya"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+
+# ── Go back to home ──
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Open drawer and navigate to Chat History ──
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_see_all_button"
+    timeout: 10000
+- tapOn:
+    id: "drawer_see_all_button"
+
+# ── Assert Chat History screen ──
+- extendedWaitUntil:
+    visible:
+      id: "chat_history_screen"
+    timeout: 15000
+- assertVisible:
+    id: "chat_history_list"
+
+# ── Tap first conversation to open it ──
+- tapOn:
+    text: ".*maize.*"
+    index: 0
+
+# ── Assert chat screen opened with the correct conversation ──
+- extendedWaitUntil:
+    visible:
+      text: ".*maize.*"
+    timeout: 30000
+- assertVisible: "How to grow maize in Kenya"

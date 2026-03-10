@@ -1,0 +1,12 @@
+appId: com.android.settings
+name: "TC33 - Error Screen No Internet"
+tags:
+  - error
+  - regression
+---
+- extendedWaitUntil:
+    visible:
+      id: "error_screen"
+    timeout: 30000
+- assertVisible:
+    id: "error_retry_button"

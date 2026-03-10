@@ -1,0 +1,42 @@
+appId: com.android.settings
+name: "TC35 - Chat History Retry Recovery"
+tags:
+  - chat
+  - error
+  - regression
+---
+# Tap Try again after internet is restored
+- tapOn:
+    id: "error_retry_button"
+
+# Should navigate — check if we land on chat history or home
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+    optional: true
+
+# Navigate to chat history via drawer
+- runFlow:
+    when:
+      visible:
+        id: "home_screen"
+    commands:
+      - tapOn:
+          id: "home_hamburger_button"
+      - extendedWaitUntil:
+          visible:
+            id: "drawer_see_all_button"
+          timeout: 5000
+      - tapOn:
+          id: "drawer_see_all_button"
+
+# Assert chat history screen loads with the question we asked
+- extendedWaitUntil:
+    visible:
+      id: "chat_history_screen"
+    timeout: 15000
+- assertVisible:
+    id: "chat_history_list"
+- assertVisible:
+    text: ".*wheat.*"

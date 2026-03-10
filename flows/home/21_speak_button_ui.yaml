@@ -1,0 +1,23 @@
+appId: com.android.settings
+name: "TC24 - Speak Button UI Validation"
+tags:
+  - home
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_speak_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Listening..."
+    timeout: 10000
+- assertVisible: "Ask your farming question"
+
+- tapOn: "Cancel"
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 5000

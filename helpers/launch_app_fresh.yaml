@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+# FRESH_LAUNCH
+---
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 15000

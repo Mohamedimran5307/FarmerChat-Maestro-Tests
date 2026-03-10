@@ -1,0 +1,31 @@
+appId: com.android.settings
+name: "TC29 - Location Interstitial Skip"
+tags:
+  - home
+  - onboarding
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Tap Weather Widget ──
+- tapOn:
+    id: "home_weather_button"
+- extendedWaitUntil:
+    visible:
+      id: "location_interstitial_skip"
+    timeout: 10000
+
+# ── Assert Skip button is visible and tap it ──
+- assertVisible:
+    id: "location_interstitial_skip"
+- tapOn:
+    id: "location_interstitial_skip"
+
+# ── Press back to return to home screen ──
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+- assertVisible:
+    id: "home_screen"

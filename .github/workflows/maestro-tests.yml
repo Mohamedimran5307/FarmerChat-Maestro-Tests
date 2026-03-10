@@ -1,0 +1,159 @@
+name: FarmerChat Maestro Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: 'Direct download URL for the APK (optional if apk is in repo artifacts)'
+        required: false
+        type: string
+
+env:
+  APP_ID: org.digitalgreen.farmer.chat
+  JAVA_VERSION: '17'
+  API_LEVEL: 34
+
+jobs:
+  maestro-tests:
+    runs-on: macos-13
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Download APK
+        run: |
+          if [ -n "${{ github.event.inputs.apk_url }}" ]; then
+            curl -L -o app.apk "${{ github.event.inputs.apk_url }}"
+          elif [ -f "app.apk" ]; then
+            echo "Using app.apk from repository"
+          else
+            echo "::error::No APK found. Either provide apk_url input or place app.apk in the repo root."
+            exit 1
+          fi
+
+      - name: AVD Cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-api-${{ env.API_LEVEL }}-v2
+
+      - name: Create AVD (if not cached)
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7_pro
+          ram-size: 4096M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: echo "AVD created and cached"
+
+      - name: Run Maestro Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7_pro
+          ram-size: 4096M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -dns-server 8.8.8.8
+          disable-animations: true
+          script: |
+            # Wait for emulator to be fully ready
+            adb wait-for-device
+            adb shell input keyevent 82
+            sleep 10
+
+            # Install the APK
+            adb install -r app.apk
+
+            # Grant permissions
+            adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
+            adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
+            adb shell pm grant ${{ env.APP_ID }} android.permission.CAMERA 2>/dev/null || true
+            adb shell pm grant ${{ env.APP_ID }} android.permission.RECORD_AUDIO 2>/dev/null || true
+            adb shell pm grant ${{ env.APP_ID }} android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+
+            # Disable stylus
+            adb shell settings put secure stylus_handwriting_enabled 0 2>/dev/null || true
+            adb shell settings put secure show_stylus_handwriting_intro 0 2>/dev/null || true
+
+            # Disable animations for faster execution
+            adb shell settings put global window_animation_scale 0
+            adb shell settings put global transition_animation_scale 0
+            adb shell settings put global animator_duration_scale 0
+
+            # Set mock location
+            adb shell appops set ${{ env.APP_ID }} android:mock_location allow 2>/dev/null || true
+
+            # Port forward for Maestro
+            adb forward tcp:7001 tcp:7001
+
+            # Run the full test suite
+            chmod +x scripts/run_all.sh
+            bash scripts/run_all.sh
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-test-report-${{ github.run_number }}
+          path: reports/
+          retention-days: 30
+
+      - name: Upload Maestro Debug Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug-logs-${{ github.run_number }}
+          path: ~/.maestro/tests/
+          retention-days: 7
+
+      - name: Post Summary
+        if: always()
+        run: |
+          REPORT_DIR=$(ls -td reports/*/ 2>/dev/null | head -1)
+          if [ -n "$REPORT_DIR" ]; then
+            TOTAL=$(grep -o '"number">[0-9]*' "$REPORT_DIR/report.html" | head -1 | grep -o '[0-9]*')
+            PASSED=$(grep -c 'badge passed' "$REPORT_DIR/report.html" || echo 0)
+            FAILED=$(grep -c 'badge failed' "$REPORT_DIR/report.html" || echo 0)
+            echo "## Maestro Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ "$FAILED" -eq 0 ]; then
+              echo "> ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "> ❌ $FAILED test(s) failed. Check the uploaded report for details." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi

@@ -1,0 +1,84 @@
+appId: com.android.settings
+name: "TC35 - Chat History Retry Setup"
+tags:
+  - chat
+  - error
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# Login with phone number
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sign up with phone number"
+    timeout: 10000
+- tapOn: "Sign up with phone number"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- inputText: "7013733824"
+- tapOn: "Send via SMS"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: "1111"
+- tapOn:
+    id: "auth_submit_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_continue"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# Ask a question to create chat history
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to grow wheat in Kenya"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ".*[Rr]elated.*"
+    direction: DOWN
+    timeout: 90000
+
+# Go back to home
+- tapOn:
+    id: "chat_close_button"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 10000

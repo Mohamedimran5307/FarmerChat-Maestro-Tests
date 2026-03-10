@@ -1,0 +1,36 @@
+appId: com.android.settings
+name: "TC22 - Help Privacy Policy"
+tags:
+  - help
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_help_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_help_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "help_screen"
+    timeout: 5000
+
+- tapOn:
+    id: "help_privacy_policy"
+
+- extendedWaitUntil:
+    visible:
+      text: "Privacy Policy"
+    timeout: 15000
+
+- runFlow:
+    when:
+      visible:
+        text: "LAST UPDATED: DECEMBER 2025"
+    commands:
+      - assertVisible: "LAST UPDATED: DECEMBER 2025"

@@ -1,0 +1,31 @@
+appId: com.android.settings
+name: "TC31 - Legal Dialog Terms of Use on Language Screen"
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+    
+- setLocation:
+    latitude: 0.4717
+    longitude: 35.9650
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+# ── Tap Terms of Use link ──
+- tapOn:
+    id: "language_terms_link"
+
+# ── Assert Terms of Use dialog opens ──
+- extendedWaitUntil:
+    visible:
+      text: "Terms of Use"
+    timeout: 15000

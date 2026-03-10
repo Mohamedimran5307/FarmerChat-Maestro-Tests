@@ -1,0 +1,52 @@
+appId: com.android.settings
+name: "TC16 - Settings Update Name"
+tags:
+  - settings
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_settings_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_settings_button"
+- extendedWaitUntil:
+    visible:
+      id: "settings_screen"
+    timeout: 5000
+
+- tapOn:
+    id: "settings_name_item"
+- extendedWaitUntil:
+    visible:
+      id: "settings_name_screen"
+    timeout: 5000
+
+- tapOn:
+    id: "settings_name_input"
+- longPressOn:
+    id: "settings_name_input"
+- runFlow:
+    when:
+      visible:
+        text: "Select all"
+    commands:
+      - tapOn: "Select all"
+- eraseText: 1
+- inputText: "Kenya Farmer"
+- hideKeyboard
+- tapOn:
+    id: "settings_name_save_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "settings_screen"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      text: ".*Kenya Farmer.*"
+    timeout: 10000

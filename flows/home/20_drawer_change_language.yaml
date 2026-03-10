@@ -1,0 +1,30 @@
+appId: com.android.settings
+name: "TC23 - Drawer Change Language"
+tags:
+  - navigation
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_language_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_language_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "language_chooser_screen"
+    timeout: 5000
+
+- tapOn: "${LANGUAGE}"
+- tapOn:
+    id: "language_chooser_save_button"
+
+- extendedWaitUntil:
+    visible:
+      text: ".*language.*updated.*"
+    timeout: 10000

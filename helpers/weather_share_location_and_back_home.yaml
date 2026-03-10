@@ -1,0 +1,40 @@
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible:
+      id: "home_weather_button"
+    timeout: 30000
+- tapOn:
+    id: "home_weather_button"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        id: "location_share_button"
+    commands:
+      - tapOn:
+          id: "location_share_button"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        text: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        id: "chat_close_button"
+    commands:
+      - tapOn:
+          id: "chat_close_button"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 30000

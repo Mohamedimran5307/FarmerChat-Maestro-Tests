@@ -1,0 +1,39 @@
+appId: com.android.settings
+name: "TC05 - Weather Widget, Grant Location, Verify Feed Cards"
+tags:
+  - home
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_weather_button"
+
+- runFlow:
+    when:
+      visible:
+        id: "location_share_button"
+    commands:
+      - tapOn:
+          id: "location_share_button"
+
+- runFlow:
+    when:
+      visible:
+        text: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+- scrollUntilVisible:
+    element:
+      text: "Learn More"
+    direction: DOWN
+    timeout: 30000
+- assertVisible: "Learn More"

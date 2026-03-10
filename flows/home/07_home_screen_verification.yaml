@@ -1,0 +1,21 @@
+appId: com.android.settings
+name: "TC07 - Tap Learn More on First Card and See Read Full Advice"
+tags:
+  - home
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- scrollUntilVisible:
+    element:
+      text: "Learn More"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    text: "Learn More"
+    index: 0
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_read_full_advice_button"
+    timeout: 30000

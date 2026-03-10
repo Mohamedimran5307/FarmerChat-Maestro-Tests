@@ -1,0 +1,49 @@
+appId: com.android.settings
+name: "TC09 - Answer First Question Card and Confirm"
+tags:
+  - home
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- assertVisible:
+    id: "home_screen"
+
+# Scroll past the header area
+- scroll
+- scroll
+
+# Look for a question card; they always contain "None of the above" as an option.
+# If no question card is served by the server, this step is optional and will skip.
+- extendedWaitUntil:
+    visible:
+      text: "None of the above"
+    timeout: 10000
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        text: "None of the above"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "None of the above"
+          direction: DOWN
+          timeout: 30000
+          speed: 40
+          centerElement: true
+      - tapOn:
+          above:
+            text: "None of the above"
+          index: 0
+      - waitForAnimationToEnd
+      - scrollUntilVisible:
+          element:
+            text: "Confirm"
+          direction: DOWN
+          timeout: 15000
+      - tapOn: "Confirm"
+      - waitForAnimationToEnd
+      - assertNotVisible:
+          text: "Confirm"

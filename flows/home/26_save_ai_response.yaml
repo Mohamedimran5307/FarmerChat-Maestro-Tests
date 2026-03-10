@@ -1,0 +1,42 @@
+appId: com.android.settings
+name: "TC28 - Save AI Response to Gallery"
+tags:
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Ask a question ──
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "Best fertilizer for tomato farming"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+# ── Wait for AI response ──
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+
+# ── Scroll down and tap Save button on AI response ──
+- scrollUntilVisible:
+    element:
+      id: "chat_save_button"
+    direction: DOWN
+    timeout: 90000
+- tapOn:
+    id: "chat_save_button"
+
+# ── Assert success message ──
+- extendedWaitUntil:
+    visible:
+      text: ".*[Ss]aved.*"
+    timeout: 10000
+- assertVisible:
+    text: ".*[Ss]aved.*"

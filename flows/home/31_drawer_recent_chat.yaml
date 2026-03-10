@@ -1,0 +1,100 @@
+appId: com.android.settings
+name: "TC33 - Drawer Recent Chat Items"
+tags:
+  - drawer
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Sign up with phone number ──
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_button"
+
+- extendedWaitUntil:
+    visible:
+      text: "Sign up with phone number"
+    timeout: 10000
+- tapOn: "Sign up with phone number"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- inputText: ${PHONE_NUMBER}
+- tapOn: "Send via SMS"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: ${OTP_CODE}
+- tapOn:
+    id: "auth_submit_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_continue"
+
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Ask a question to create chat history ──
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to control pests in wheat"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+
+# ── Go back to home ──
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Open drawer and verify recent chat items ──
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      text: "Past Advice"
+    timeout: 10000
+- assertVisible: ".*wheat.*"
+
+# ── Tap the recent chat item ──
+- tapOn:
+    text: ".*wheat.*"
+    index: 0
+
+# ── Assert chat screen opened with correct conversation ──
+- extendedWaitUntil:
+    visible:
+      text: ".*wheat.*"
+    timeout: 30000
+- assertVisible: "How to control pests in wheat"

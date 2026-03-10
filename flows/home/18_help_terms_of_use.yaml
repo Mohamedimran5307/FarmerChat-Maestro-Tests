@@ -1,0 +1,36 @@
+appId: com.android.settings
+name: "TC21 - Help Terms of Use"
+tags:
+  - help
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_help_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_help_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "help_screen"
+    timeout: 5000
+
+- tapOn:
+    id: "help_terms_of_use"
+
+- extendedWaitUntil:
+    visible:
+      text: "Terms of Use"
+    timeout: 15000
+
+- runFlow:
+    when:
+      visible:
+        text: "Digital Green Foundation · FarmerChat"
+    commands:
+      - assertVisible: "Digital Green Foundation · FarmerChat"

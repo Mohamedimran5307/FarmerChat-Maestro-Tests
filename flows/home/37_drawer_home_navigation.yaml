@@ -1,0 +1,37 @@
+appId: com.android.settings
+name: "TC36 - Drawer Home Navigation"
+tags:
+  - navigation
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# Navigate away from home (go to Help)
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_help_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_help_button"
+- extendedWaitUntil:
+    visible:
+      id: "help_screen"
+    timeout: 5000
+
+# Open drawer from Help and tap Home
+- tapOn:
+    id: "help_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_home_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_home_button"
+
+# Assert back on home
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 10000

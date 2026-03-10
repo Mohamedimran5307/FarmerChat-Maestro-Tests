@@ -1,0 +1,32 @@
+appId: com.android.settings
+name: "TC20 - Help and Support FAQ Accordion"
+tags:
+  - help
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_help_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_help_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "help_screen"
+    timeout: 5000
+- assertVisible: "How to use FarmerChat"
+
+- tapOn: "What is FarmerChat and how can it help me?"
+
+- extendedWaitUntil:
+    visible:
+      id: "faqs-en"
+    timeout: 10000
+- assertVisible:
+    id: "faq-01"
+- assertVisible: "FarmerChat gives you instant advice on crops, pests, diseases, weather, and livestock. It helps you farm better and save money."

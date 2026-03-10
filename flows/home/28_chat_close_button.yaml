@@ -1,0 +1,35 @@
+appId: com.android.settings
+name: "TC30 - Chat Close Button Returns to Home"
+tags:
+  - chat
+  - regression
+---
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Ask a question to open chat ──
+- tapOn:
+    id: "home_type_button"
+- tapOn: "Ask about your farm..."
+- inputText: "How to irrigate rice fields"
+- extendedWaitUntil:
+    visible:
+      id: "text_input_send_button"
+    timeout: 5000
+- tapOn:
+    id: "text_input_send_button"
+
+# ── Wait for AI response ──
+- extendedWaitUntil:
+    visible:
+      id: "chat_thread_list"
+    timeout: 60000
+
+# ── Tap X (close) button ──
+- tapOn:
+    id: "chat_close_button"
+
+# ── Assert navigated back to home screen ──
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
