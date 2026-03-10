@@ -32,13 +32,18 @@ start_recording() {
     local safe_name
     safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
     adb -s "$DEVICE" shell rm -f /sdcard/test_recording.mp4 2>/dev/null
-    adb -s "$DEVICE" shell screenrecord --time-limit 180 --size 720x1560 /sdcard/test_recording.mp4 &
+    adb -s "$DEVICE" shell screenrecord --time-limit 180 --size 720x1560 --bit-rate 2000000 /sdcard/test_recording.mp4 &
     RECORDING_PID=$!
+    RECORDING_START=$(date +%s)
 }
 
 stop_recording() {
     local safe_name
     safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
+    local elapsed=$(( $(date +%s) - RECORDING_START ))
+    if [ "$elapsed" -lt 5 ]; then
+        sleep $(( 5 - elapsed ))
+    fi
     adb -s "$DEVICE" shell "kill \$(pidof screenrecord)" 2>/dev/null || true
     sleep 3
     adb -s "$DEVICE" pull /sdcard/test_recording.mp4 "$RECORDINGS_DIR/${safe_name}.mp4" > /dev/null 2>&1
@@ -47,8 +52,16 @@ stop_recording() {
     kill "$RECORDING_PID" 2>/dev/null || true
     wait "$RECORDING_PID" 2>/dev/null || true
     RECORDING_PID=""
+    RECORDING_START=""
     if [ $pulled -eq 0 ] && [ -f "$RECORDINGS_DIR/${safe_name}.mp4" ]; then
-        echo "recordings/${safe_name}.mp4"
+        local fsize
+        fsize=$(wc -c < "$RECORDINGS_DIR/${safe_name}.mp4" | tr -d ' ')
+        if [ "$fsize" -gt 10000 ]; then
+            echo "recordings/${safe_name}.mp4"
+        else
+            rm -f "$RECORDINGS_DIR/${safe_name}.mp4"
+            echo ""
+        fi
     else
         echo ""
     fi
@@ -416,9 +429,9 @@ for i in "${!R_STATUS[@]}"; do
 
     video_html=""
     if [ -n "$video_file" ] && [ -f "$RUN_DIR/$video_file" ]; then
-        video_html="<div class=\"video-cell\"><details><summary>▶ Watch</summary><video width=\"280\" controls preload=\"none\" poster=\"\"><source src=\"$video_file\" type=\"video/mp4\">Browser does not support video.</video></details><br><a href=\"$video_file\" download>⬇ Download</a></div>"
+        video_html="<div class=\"video-cell\"><video width=\"300\" controls preload=\"metadata\"><source src=\"$video_file\" type=\"video/mp4\"></video><br><a href=\"$video_file\" download>Download MP4</a></div>"
     else
-        video_html="<span class=\"no-video\">—</span>"
+        video_html="<span class=\"no-video\">No recording</span>"
     fi
 
     cat >> "$REPORT_FILE" << ROWEOF
