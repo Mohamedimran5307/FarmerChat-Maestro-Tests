@@ -23,6 +23,11 @@ jobs:
         with:
           lfs: true
 
+      - name: Pull LFS files
+        run: |
+          git lfs install
+          git lfs pull
+
       - name: Ensure emulator is running
         run: |
           if ! adb devices | grep -q "emulator-5554"; then
