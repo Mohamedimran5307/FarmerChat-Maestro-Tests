@@ -11,7 +11,6 @@ on:
 
 env:
   APP_ID: org.digitalgreen.farmer.chat
-  API_LEVEL: 34
 
 jobs:
   maestro-tests:
@@ -35,62 +34,76 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: AVD Cache
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-api-${{ env.API_LEVEL }}-arm64-v1
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "emulator" \
+            "platforms;android-34" \
+            "system-images;android-34;google_apis;arm64-v8a" || true
 
-      - name: Create AVD (if not cached)
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ env.API_LEVEL }}
-          target: google_apis
-          arch: arm64-v8a
-          force-avd-creation: false
-          emulator-options: -no-window -noaudio -no-boot-anim
-          disable-animations: true
-          script: echo "AVD created and cached"
+      - name: Create and Boot Emulator
+        run: |
+          echo "Creating AVD..."
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            -n test_avd \
+            -k "system-images;android-34;google_apis;arm64-v8a" \
+            -d "pixel_6" \
+            --force
+
+          echo "Starting emulator..."
+          $ANDROID_HOME/emulator/emulator -avd test_avd \
+            -no-window -noaudio -no-boot-anim -no-snapshot \
+            -dns-server 8.8.8.8 &
+
+          echo "Waiting for emulator to boot..."
+          adb wait-for-device
+          boot=""
+          timeout=300
+          elapsed=0
+          while [ "$boot" != "1" ] && [ $elapsed -lt $timeout ]; do
+            boot=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            sleep 5
+            elapsed=$((elapsed + 5))
+            echo "  Waiting... ${elapsed}s"
+          done
+
+          if [ "$boot" != "1" ]; then
+            echo "Emulator failed to boot in ${timeout}s"
+            adb devices
+            exit 1
+          fi
+
+          echo "Emulator booted in ${elapsed}s"
+          adb devices
+          sleep 10
+
+      - name: Install APK and configure
+        run: |
+          echo "Installing APK..."
+          adb install -r app.apk || { echo "APK install failed!"; exit 1; }
+
+          echo "Granting permissions..."
+          adb shell pm grant $APP_ID android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
+          adb shell pm grant $APP_ID android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
+          adb shell pm grant $APP_ID android.permission.CAMERA 2>/dev/null || true
+          adb shell pm grant $APP_ID android.permission.RECORD_AUDIO 2>/dev/null || true
+          adb shell pm grant $APP_ID android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+
+          echo "Disabling animations..."
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell settings put secure stylus_handwriting_enabled 0 2>/dev/null || true
+          adb shell settings put secure show_stylus_handwriting_intro 0 2>/dev/null || true
+
+          adb forward tcp:7001 tcp:7001
+          echo "Device ready."
 
       - name: Run Maestro Tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ env.API_LEVEL }}
-          target: google_apis
-          arch: arm64-v8a
-          force-avd-creation: false
-          emulator-options: -no-window -noaudio -no-boot-anim -dns-server 8.8.8.8
-          disable-animations: true
-          script: |
-            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-            sleep 15
-
-            echo "Installing APK..."
-            adb install -r app.apk || { echo "APK install failed!"; exit 1; }
-
-            echo "Granting permissions..."
-            adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
-            adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
-            adb shell pm grant ${{ env.APP_ID }} android.permission.CAMERA 2>/dev/null || true
-            adb shell pm grant ${{ env.APP_ID }} android.permission.RECORD_AUDIO 2>/dev/null || true
-            adb shell pm grant ${{ env.APP_ID }} android.permission.POST_NOTIFICATIONS 2>/dev/null || true
-
-            echo "Configuring emulator..."
-            adb shell settings put global window_animation_scale 0
-            adb shell settings put global transition_animation_scale 0
-            adb shell settings put global animator_duration_scale 0
-            adb shell settings put secure stylus_handwriting_enabled 0 2>/dev/null || true
-            adb shell settings put secure show_stylus_handwriting_intro 0 2>/dev/null || true
-
-            adb forward tcp:7001 tcp:7001
-
-            echo "Running test suite..."
-            chmod +x scripts/run_all.sh
-            bash scripts/run_all.sh
+        run: |
+          chmod +x scripts/run_all.sh
+          bash scripts/run_all.sh
 
       - name: Upload Test Report
         if: always()
