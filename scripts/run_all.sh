@@ -26,45 +26,30 @@ TOTAL=0
 PASSED=0
 FAILED=0
 declare -a R_STATUS R_TCNAME R_LOGFILE R_DURATION R_VIDEO
-RECORDING_PID=""
 
 start_recording() {
-    local safe_name
-    safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
     adb -s "$DEVICE" shell rm -f /sdcard/test_recording.mp4 2>/dev/null
-    adb -s "$DEVICE" shell screenrecord --time-limit 180 --size 720x1560 --bit-rate 2000000 /sdcard/test_recording.mp4 &
-    RECORDING_PID=$!
-    RECORDING_START=$(date +%s)
+    adb -s "$DEVICE" shell "nohup screenrecord --time-limit 180 /sdcard/test_recording.mp4 < /dev/null > /dev/null 2>&1 &"
+    sleep 1
 }
 
 stop_recording() {
     local safe_name
     safe_name=$(echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g')
-    local elapsed=$(( $(date +%s) - RECORDING_START ))
-    if [ "$elapsed" -lt 5 ]; then
-        sleep $(( 5 - elapsed ))
-    fi
     adb -s "$DEVICE" shell "kill \$(pidof screenrecord)" 2>/dev/null || true
     sleep 3
     adb -s "$DEVICE" pull /sdcard/test_recording.mp4 "$RECORDINGS_DIR/${safe_name}.mp4" > /dev/null 2>&1
-    local pulled=$?
     adb -s "$DEVICE" shell rm -f /sdcard/test_recording.mp4 2>/dev/null
-    kill "$RECORDING_PID" 2>/dev/null || true
-    wait "$RECORDING_PID" 2>/dev/null || true
-    RECORDING_PID=""
-    RECORDING_START=""
-    if [ $pulled -eq 0 ] && [ -f "$RECORDINGS_DIR/${safe_name}.mp4" ]; then
+    if [ -f "$RECORDINGS_DIR/${safe_name}.mp4" ]; then
         local fsize
         fsize=$(wc -c < "$RECORDINGS_DIR/${safe_name}.mp4" | tr -d ' ')
         if [ "$fsize" -gt 10000 ]; then
             echo "recordings/${safe_name}.mp4"
-        else
-            rm -f "$RECORDINGS_DIR/${safe_name}.mp4"
-            echo ""
+            return
         fi
-    else
-        echo ""
+        rm -f "$RECORDINGS_DIR/${safe_name}.mp4"
     fi
+    echo ""
 }
 
 ENV_ARGS=(
@@ -170,8 +155,7 @@ run_flow() {
     echo "--- [$TOTAL] $test_name ---"
 
     prepare_device
-
-    start_recording "$test_name"
+    start_recording
 
     if maestro --device "$DEVICE" test "${ENV_ARGS[@]}" "$flow_file" \
         > "$log_file" 2>&1; then
@@ -208,7 +192,7 @@ run_network_test() {
     echo ""
     echo "--- [$TOTAL] $test_name ---"
 
-    start_recording "$test_name"
+    start_recording
 
     if bash "$script_file" > "$log_file" 2>&1; then
         PASSED=$((PASSED + 1))
