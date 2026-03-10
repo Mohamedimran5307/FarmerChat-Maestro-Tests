@@ -73,18 +73,15 @@ jobs:
             adb forward tcp:7001 tcp:7001
 
             echo "Fixing emulator network..."
-            adb shell svc wifi disable
+            adb shell setprop net.dns1 8.8.8.8
+            adb shell setprop net.dns2 8.8.4.4
             sleep 2
-            adb shell svc wifi enable
-            sleep 5
-            adb shell cmd connectivity airplane-mode enable
-            sleep 2
-            adb shell cmd connectivity airplane-mode disable
-            sleep 5
 
-            echo "Checking connectivity..."
-            adb shell ping -c 3 8.8.8.8 || echo "WARNING: No internet on emulator!"
-            adb shell ping -c 1 google.com || echo "WARNING: DNS not working!"
+            echo "Checking connectivity (HTTP)..."
+            adb shell "toybox wget -O /dev/null http://google.com 2>&1" || echo "WARNING: HTTP to google.com failed"
+            adb shell "toybox wget -O /dev/null http://8.8.8.8 2>&1" || echo "WARNING: Direct IP HTTP failed"
+            adb shell "getprop net.dns1"
+            adb shell "ip route"
 
             echo "Launching app to verify..."
             adb shell am start -n ${{ env.APP_ID }}/org.digitalgreen.farmer.chatbot.MainActivity
