@@ -107,18 +107,25 @@ prepare_device() {
     grant_permissions
     sleep 1
     adb -s "$DEVICE" shell am start -n "$APP_ID/$ACTIVITY" 2>/dev/null
-    sleep 15
+    sleep 20
 
-    for attempt in 1 2 3; do
-        local error_visible
-        error_visible=$(adb -s "$DEVICE" exec-out uiautomator dump /dev/tty 2>/dev/null | grep -c "Try again" | tr -d '[:space:]' || echo "0")
-        error_visible="${error_visible:-0}"
-        if [ "$error_visible" -gt 0 ] 2>/dev/null; then
+    for attempt in 1 2 3 4 5; do
+        local ui_dump
+        ui_dump=$(adb -s "$DEVICE" exec-out uiautomator dump /dev/tty 2>/dev/null || true)
+        local has_error=$(echo "$ui_dump" | grep -c "Try again" | tr -d '[:space:]')
+        has_error="${has_error:-0}"
+        local is_loading=$(echo "$ui_dump" | grep -c "Starting" | tr -d '[:space:]')
+        is_loading="${is_loading:-0}"
+
+        if [ "$has_error" -gt 0 ] 2>/dev/null; then
             echo "  [retry $attempt] Error screen detected, restarting app..."
             adb -s "$DEVICE" shell am force-stop "$APP_ID" 2>/dev/null
             sleep 5
             adb -s "$DEVICE" shell am start -n "$APP_ID/$ACTIVITY" 2>/dev/null
-            sleep 15
+            sleep 20
+        elif [ "$is_loading" -gt 0 ] 2>/dev/null; then
+            echo "  [wait $attempt] App still loading, waiting 10s..."
+            sleep 10
         else
             break
         fi
