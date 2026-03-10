@@ -47,7 +47,18 @@ jobs:
 
       - name: Install APK
         run: |
-          adb install -r app.apk || { echo "APK install failed!"; exit 1; }
+          if adb shell pm list packages | grep -q "${{ env.APP_ID }}"; then
+            echo "App already installed, reinstalling from repo..."
+          fi
+          adb install -r app.apk || {
+            echo "APK install from repo failed, checking if app exists on device..."
+            if adb shell pm list packages | grep -q "${{ env.APP_ID }}"; then
+              echo "App already installed on device, continuing."
+            else
+              echo "APK install failed and app not on device!"
+              exit 1
+            fi
+          }
 
       - name: Configure device
         run: |

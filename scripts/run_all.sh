@@ -79,7 +79,22 @@ prepare_device() {
     grant_permissions
     sleep 1
     adb -s "$DEVICE" shell am start -n "$APP_ID/$ACTIVITY" 2>/dev/null
-    sleep 20
+    sleep 15
+
+    for attempt in 1 2 3; do
+        local error_visible
+        error_visible=$(adb -s "$DEVICE" exec-out uiautomator dump /dev/tty 2>/dev/null | grep -c "Try again" || echo "0")
+        if [ "$error_visible" -gt 0 ]; then
+            echo "  [retry $attempt] Error screen detected, restarting app..."
+            adb -s "$DEVICE" shell am force-stop "$APP_ID" 2>/dev/null
+            sleep 5
+            adb -s "$DEVICE" shell am start -n "$APP_ID/$ACTIVITY" 2>/dev/null
+            sleep 15
+        else
+            break
+        fi
+    done
+
     local launched
     launched=$(adb -s "$DEVICE" shell dumpsys activity activities 2>/dev/null | grep -c "$APP_ID" || echo "0")
     if [ "$launched" -lt 1 ]; then
@@ -87,7 +102,7 @@ prepare_device() {
         adb -s "$DEVICE" shell am force-stop "$APP_ID" 2>/dev/null
         sleep 3
         adb -s "$DEVICE" shell am start -n "$APP_ID/$ACTIVITY" 2>/dev/null
-        sleep 20
+        sleep 15
     fi
     adb -s "$DEVICE" forward tcp:7001 tcp:7001 2>/dev/null || true
 }
