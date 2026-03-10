@@ -285,6 +285,59 @@ else
     PROGRESS_CLASS="bad"
 fi
 
+cat > "$RUN_DIR/style.css" << 'CSSEOF'
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+.header { background: linear-gradient(135deg, #1a7431, #2d9b4e); color: white; padding: 32px 40px; }
+.header h1 { font-size: 28px; margin-bottom: 4px; }
+.header p { opacity: 0.85; font-size: 14px; }
+.summary { display: flex; gap: 16px; padding: 24px 40px; flex-wrap: wrap; }
+.card { background: white; border-radius: 12px; padding: 20px 24px; flex: 1; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
+.card .number { font-size: 36px; font-weight: 700; }
+.card .label { font-size: 13px; color: #666; margin-top: 4px; }
+.card.total .number { color: #1a7431; }
+.card.passed .number { color: #22c55e; }
+.card.failed .number { color: #ef4444; }
+.card.rate .number { color: #3b82f6; }
+.card.time .number { font-size: 28px; color: #8b5cf6; }
+.progress-bar { margin: 0 40px 24px; background: #e5e7eb; border-radius: 8px; height: 12px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 8px; transition: width 0.5s; }
+.progress-fill.good { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.progress-fill.warn { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.progress-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
+.table-container { padding: 0 40px 40px; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+th { background: #f8fafc; padding: 14px 20px; text-align: left; font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 14px; vertical-align: top; }
+tr:hover td { background: #f8fafc; }
+.badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+.badge.passed { background: #dcfce7; color: #166534; }
+.badge.failed { background: #fee2e2; color: #991b1b; }
+.duration { color: #64748b; font-size: 13px; }
+.log-file { color: #64748b; font-size: 12px; font-family: monospace; }
+details { margin-top: 6px; }
+details summary { cursor: pointer; color: #3b82f6; font-size: 12px; font-weight: 600; }
+details summary:hover { text-decoration: underline; }
+.log-content { margin-top: 8px; padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; }
+.log-content .completed { color: #4ade80; }
+.log-content .failed-line { color: #f87171; font-weight: bold; }
+.log-content .skipped { color: #94a3b8; }
+.video-cell video { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.video-cell a { color: #3b82f6; font-size: 12px; font-weight: 600; text-decoration: none; }
+.video-cell a:hover { text-decoration: underline; }
+.no-video { color: #94a3b8; font-size: 12px; }
+.footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+.coverage { padding: 0 40px 24px; }
+.coverage h2 { font-size: 18px; margin-bottom: 12px; color: #1a1a2e; }
+.coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.cov-card { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+.cov-card .area { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.cov-card .count { font-size: 24px; font-weight: 700; color: #1a7431; }
+.cov-card .desc { font-size: 12px; color: #94a3b8; }
+CSSEOF
+
+echo ".progress-fill { width: ${PASS_RATE}%; }" >> "$RUN_DIR/style.css"
+
 cat > "$REPORT_FILE" << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
@@ -295,56 +348,7 @@ HTMLEOF
 
 cat >> "$REPORT_FILE" << HTMLEOF
 <title>FarmerChat Test Report - $TIMESTAMP</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
-  .header { background: linear-gradient(135deg, #1a7431, #2d9b4e); color: white; padding: 32px 40px; }
-  .header h1 { font-size: 28px; margin-bottom: 4px; }
-  .header p { opacity: 0.85; font-size: 14px; }
-  .summary { display: flex; gap: 16px; padding: 24px 40px; flex-wrap: wrap; }
-  .card { background: white; border-radius: 12px; padding: 20px 24px; flex: 1; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
-  .card .number { font-size: 36px; font-weight: 700; }
-  .card .label { font-size: 13px; color: #666; margin-top: 4px; }
-  .card.total .number { color: #1a7431; }
-  .card.passed .number { color: #22c55e; }
-  .card.failed .number { color: #ef4444; }
-  .card.rate .number { color: #3b82f6; }
-  .card.time .number { font-size: 28px; color: #8b5cf6; }
-  .progress-bar { margin: 0 40px 24px; background: #e5e7eb; border-radius: 8px; height: 12px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 8px; transition: width 0.5s; }
-  .progress-fill.good { background: linear-gradient(90deg, #22c55e, #16a34a); }
-  .progress-fill.warn { background: linear-gradient(90deg, #f59e0b, #d97706); }
-  .progress-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
-  .table-container { padding: 0 40px 40px; }
-  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  th { background: #f8fafc; padding: 14px 20px; text-align: left; font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-  td { padding: 14px 20px; border-top: 1px solid #f1f5f9; font-size: 14px; vertical-align: top; }
-  tr:hover td { background: #f8fafc; }
-  .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
-  .badge.passed { background: #dcfce7; color: #166534; }
-  .badge.failed { background: #fee2e2; color: #991b1b; }
-  .duration { color: #64748b; font-size: 13px; }
-  .log-file { color: #64748b; font-size: 12px; font-family: monospace; }
-  details { margin-top: 6px; }
-  details summary { cursor: pointer; color: #3b82f6; font-size: 12px; font-weight: 600; }
-  details summary:hover { text-decoration: underline; }
-  .log-content { margin-top: 8px; padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; }
-  .log-content .completed { color: #4ade80; }
-  .log-content .failed-line { color: #f87171; font-weight: bold; }
-  .log-content .skipped { color: #94a3b8; }
-  .video-cell video { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-  .video-cell a { color: #3b82f6; font-size: 12px; font-weight: 600; text-decoration: none; }
-  .video-cell a:hover { text-decoration: underline; }
-  .no-video { color: #94a3b8; font-size: 12px; }
-  .footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
-  .coverage { padding: 0 40px 24px; }
-  .coverage h2 { font-size: 18px; margin-bottom: 12px; color: #1a1a2e; }
-  .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-  .cov-card { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-  .cov-card .area { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .cov-card .count { font-size: 24px; font-weight: 700; color: #1a7431; }
-  .cov-card .desc { font-size: 12px; color: #94a3b8; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="header">
@@ -359,7 +363,7 @@ cat >> "$REPORT_FILE" << HTMLEOF
   <div class="card time"><div class="number">${TOTAL_MINS}m ${TOTAL_SECS}s</div><div class="label">Total Time</div></div>
 </div>
 <div class="progress-bar">
-  <div class="progress-fill $PROGRESS_CLASS" style="width: ${PASS_RATE}%"></div>
+  <div class="progress-fill $PROGRESS_CLASS"></div>
 </div>
 <div class="coverage">
   <h2>Coverage by Area</h2>
