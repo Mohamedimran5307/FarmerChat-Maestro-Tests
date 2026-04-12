@@ -1,7 +1,10 @@
 #!/bin/bash
 # setup.sh — One-time setup for FarmerChat DeviceFarm
 # Installs dependencies, detects device, configures tester identity.
-# Usage: cd device-farm && bash setup.sh
+#
+# Usage:
+#   bash setup.sh --name rahul        # Non-interactive (Claude CLI / scripts)
+#   bash setup.sh                     # Interactive (terminal prompt)
 set -uo pipefail
 
 DEVICE_FARM_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -9,6 +12,24 @@ REPO_ROOT="$(dirname "$DEVICE_FARM_DIR")"
 APP_ID="org.digitalgreen.farmer.chat"
 ACTIVITY="org.digitalgreen.farmer.chatbot.MainActivity"
 DUPLICATE_ACTIVITY=".MainActivity"
+
+# Parse --name argument
+ARG_NAME=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --name)
+            ARG_NAME="$2"
+            shift 2
+            ;;
+        --name=*)
+            ARG_NAME="${1#*=}"
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 echo ""
 echo "============================================"
@@ -135,21 +156,36 @@ echo "  Permissions granted, device configured."
 echo "[7/8] Setting up tester identity..."
 mkdir -p "$DEVICE_FARM_DIR/.config"
 
-if [ -f "$DEVICE_FARM_DIR/.config/tester.conf" ]; then
+if [ -n "$ARG_NAME" ]; then
+    # Non-interactive mode (--name flag provided)
+    TESTER_NAME=$(echo "$ARG_NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
+    echo "TESTER_NAME=\"$TESTER_NAME\"" > "$DEVICE_FARM_DIR/.config/tester.conf"
+    echo "  Configured as: $TESTER_NAME"
+elif [ -f "$DEVICE_FARM_DIR/.config/tester.conf" ]; then
     source "$DEVICE_FARM_DIR/.config/tester.conf"
     echo "  Already configured as: $TESTER_NAME"
-    read -rp "  Keep this name? (Y/n): " keep
-    if [[ "$keep" =~ ^[Nn] ]]; then
-        read -rp "  Enter your name (e.g., Imran): " NEW_NAME
-        TESTER_NAME=$(echo "$NEW_NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
-        echo "TESTER_NAME=\"$TESTER_NAME\"" > "$DEVICE_FARM_DIR/.config/tester.conf"
-        echo "  Updated to: $TESTER_NAME"
+    if [ -t 0 ]; then
+        # Interactive terminal — offer to change
+        read -rp "  Keep this name? (Y/n): " keep
+        if [[ "$keep" =~ ^[Nn] ]]; then
+            read -rp "  Enter your name (e.g., Imran): " NEW_NAME
+            TESTER_NAME=$(echo "$NEW_NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
+            echo "TESTER_NAME=\"$TESTER_NAME\"" > "$DEVICE_FARM_DIR/.config/tester.conf"
+            echo "  Updated to: $TESTER_NAME"
+        fi
     fi
-else
+elif [ -t 0 ]; then
+    # Interactive terminal — prompt for name
     read -rp "  Enter your name (e.g., Imran): " NEW_NAME
     TESTER_NAME=$(echo "$NEW_NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
     echo "TESTER_NAME=\"$TESTER_NAME\"" > "$DEVICE_FARM_DIR/.config/tester.conf"
     echo "  Configured as: $TESTER_NAME"
+else
+    # Non-interactive and no --name flag
+    echo "  ERROR: No tester name configured."
+    echo "  Use: bash setup.sh --name <your_name>"
+    echo "  Example: bash setup.sh --name rahul"
+    exit 1
 fi
 
 # ── Step 8: Verify Git ──
