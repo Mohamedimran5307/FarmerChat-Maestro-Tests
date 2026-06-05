@@ -1,27 +1,44 @@
-appId: com.android.settings
-name: "TC27 - Settings Logout"
+appId: ${APP_ID}
+name: "TC25 - User Authentication, Settings &amp; Logout"
+# priority: P0
+# description: Verifies complete user flow including sign-up, login, and logout functionality
 tags:
   - settings
   - auth
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
 # ── Sign up with phone number ──
+# Ensure the expanded top state — home_hamburger_button unmounts from the
+# hierarchy when the home feed scrolls (see TC03 for the underlying
+# collapsing-header behavior). scrollUntilVisible has built-in retry and
+# is a no-op if hamburger is already in the hierarchy.
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_signup_button"
+      id: "drawer_signup_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_signup_button"
+    id: "drawer_signup_btn"
 
-- extendedWaitUntil:
-    visible:
-      text: "Sign up with phone number"
-    timeout: 10000
-- tapOn: "Sign up with phone number"
+# Some builds insert an intermediate "account benefits" sign-up step
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
 
 - extendedWaitUntil:
     visible:
@@ -29,8 +46,14 @@ tags:
     timeout: 10000
 - tapOn:
     id: "auth_phone_input"
-- inputText: "7013733824"
-- tapOn: "Send via SMS"
+- inputText: "${PHONE_NUMBER}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_send_sms_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_send_sms_btn"
 
 - extendedWaitUntil:
     visible:
@@ -38,16 +61,21 @@ tags:
     timeout: 30000
 - tapOn:
     id: "auth_otp_input"
-- inputText: "1111"
+- inputText: "${OTP_CODE}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_verify_btn"
+    timeout: 5000
 - tapOn:
-    id: "auth_submit_button"
+    id: "auth_verify_btn"
 
 - extendedWaitUntil:
     visible:
       id: "account_success_screen"
     timeout: 30000
 - tapOn:
-    id: "account_success_continue"
+    id: "account_success_btn_continue"
 
 - extendedWaitUntil:
     visible:
@@ -55,22 +83,31 @@ tags:
     timeout: 15000
 
 # ── Open drawer → Settings ──
+# Same hamburger-unmount guard as above. After the account-success →
+# home_screen transition the feed can settle in a collapsed state.
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_settings_button"
+      id: "drawer_settings_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_settings_button"
+    id: "drawer_settings_btn"
 - extendedWaitUntil:
     visible:
       id: "settings_screen"
     timeout: 5000
 
-# ── Tap Logout in Settings ──
+# ── Tap Logout in Settings (same tag as Sign up; text flips with auth state) ──
 - tapOn:
-    id: "settings_logout_button"
+    id: "settings_btn_auth"
 
 # ── Assert navigated back to language screen ──
 - extendedWaitUntil:
