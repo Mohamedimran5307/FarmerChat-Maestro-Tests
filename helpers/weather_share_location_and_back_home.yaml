@@ -1,40 +1,28 @@
 appId: ${APP_ID}
 ---
+# ============================================================
+# WEATHER → SHARE LOCATION → BACK TO HOME
+# Delegates to grant_location.yaml (which taps the weather
+# widget and walks every permission dialog), then closes the
+# resulting location-chat via the appbar X to land back on
+# home_screen. Tests that need to land on home AFTER granting
+# location call this; tests that want to stay in the location
+# chat (e.g. to verify chat_suggested_questions) call
+# grant_location.yaml directly.
+# ============================================================
+
+- runFlow: grant_location.yaml
+
+# grant_location lands on the location-triggered chat. Close it via the
+# appbar's X (was chat_close_button on the old APK; appbar_logo_left_btn
+# on the new one).
 - extendedWaitUntil:
     visible:
-      id: "home_weather_button"
-    timeout: 30000
+      id: "appbar_logo_left_btn"
+    timeout: 10000
 - tapOn:
-    id: "home_weather_button"
-- waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible:
-        id: "location_share_button"
-    commands:
-      - tapOn:
-          id: "location_share_button"
-      - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible:
-        text: "No thanks"
-    commands:
-      - tapOn: "No thanks"
-      - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible:
-        id: "chat_close_button"
-    commands:
-      - tapOn:
-          id: "chat_close_button"
-      - waitForAnimationToEnd
-
+    id: "appbar_logo_left_btn"
 - extendedWaitUntil:
     visible:
       id: "home_screen"
-    timeout: 30000
+    timeout: 15000
