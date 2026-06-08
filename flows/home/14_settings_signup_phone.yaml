@@ -1,33 +1,52 @@
-appId: com.android.settings
-name: "TC17 - Settings Sign Up with Phone Number"
+appId: ${APP_ID}
+name: "TC14 - Settings → Sign Up with Phone Number"
+# priority: P1
+# description: From Settings, taps the Sign Up entry, traverses the optional account-benefits screen, and verifies the phone-input screen appears
 tags:
   - settings
   - auth
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_settings_button"
+      id: "drawer_settings_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_settings_button"
+    id: "drawer_settings_btn"
 - extendedWaitUntil:
     visible:
       id: "settings_screen"
     timeout: 5000
 
+# In the new APK both "Sign up" and "Logout" share the testTag
+# settings_btn_auth — the rendered text flips based on auth state.
+# When signed out (this TC starts there), tapping it leads to the
+# signup flow.
 - tapOn:
-    id: "settings_signup_button"
-- extendedWaitUntil:
-    visible:
-      text: "Sign up with phone number"
-    timeout: 10000
+    id: "settings_btn_auth"
 
-- tapOn: "Sign up with phone number"
+# Some builds insert an intermediate "account benefits" screen before
+# the phone-input page.
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
+
 - extendedWaitUntil:
     visible:
       id: "auth_screen"
