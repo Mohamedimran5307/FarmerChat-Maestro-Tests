@@ -1,9 +1,19 @@
-appId: com.android.settings
-name: "TC33 - Error Screen No Internet"
+appId: ${APP_ID}
+name: "TC33 - No-Internet Error Screen Asserts (Precondition: Offline)"
+# priority: P2
+# description: Asserts the global "no internet" error screen and its retry button appear when the app starts offline. Pairs with TC33_error_screen_retry (which taps Retry to recover).
+# Precondition: device must be OFFLINE before this test runs. The
+# runner does NOT toggle airplane mode — the operator is expected to
+# disable network manually, run this test, then re-enable network
+# and run TC33_error_screen_retry.
+# TODO: error_screen / error_retry_button testTags carry over from
+# the old APK; the new build may use error_btn_retry or similar.
 tags:
   - error
   - regression
 ---
+- launchApp
+
 - extendedWaitUntil:
     visible:
       id: "error_screen"

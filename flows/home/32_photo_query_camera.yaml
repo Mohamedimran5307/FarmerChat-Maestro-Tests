@@ -1,17 +1,24 @@
-appId: com.android.settings
-name: "TC34 - Photo Query from Camera"
+appId: ${APP_ID}
+name: "TC32 - Photo Query via Camera Capture"
+# priority: P2
+# description: Taps the Photo input on home, picks the Camera option, captures and accepts a photo, sends it as a chat question, and verifies the AI answer renders
+# TODO: This test depends on the device's native camera UI
+# (com.android.camera2 testTags are AOSP-specific). On the Redmi
+# device under test the camera package may be different — e.g.
+# com.android.camera or com.mi.android.camera. The shutter / done
+# fallbacks below are best-effort; needs live-device verification.
 tags:
   - chat
   - camera
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
-# ── Tap Photo button ──
 - tapOn:
-    id: "home_photo_button"
+    id: "primary_input_photo_btn"
 
-# ── Tap Camera option ──
+# Pick the Camera tab in the picker
 - extendedWaitUntil:
     visible:
       text: ".*[Cc]amera.*"
@@ -19,7 +26,7 @@ tags:
 - tapOn:
     text: ".*[Cc]amera.*"
 
-# ── Camera app opens - tap shutter button ──
+# Tap shutter: prefer AOSP id, fall back to text matcher
 - extendedWaitUntil:
     visible:
       id: "com.android.camera2:id/shutter_button"
@@ -32,8 +39,6 @@ tags:
     commands:
       - tapOn:
           id: "com.android.camera2:id/shutter_button"
-
-# ── Fallback: try generic shutter/capture button ──
 - runFlow:
     when:
       visible:
@@ -42,7 +47,7 @@ tags:
       - tapOn:
           text: ".*[Ss]hutter.*"
 
-# ── Confirm/accept the captured photo ──
+# Accept the captured photo: AOSP done button or OK text
 - extendedWaitUntil:
     visible:
       id: "com.android.camera2:id/done_button"
@@ -55,8 +60,6 @@ tags:
     commands:
       - tapOn:
           id: "com.android.camera2:id/done_button"
-
-# ── Fallback: try checkmark or OK button ──
 - runFlow:
     when:
       visible:
@@ -65,25 +68,21 @@ tags:
       - tapOn:
           text: ".*OK.*"
 
-# ── Back in FarmerChat - tap Send button ──
+# Back in FarmerChat with the photo attached — send it
 - extendedWaitUntil:
     visible:
-      id: "text_input_send_button"
+      id: "chat_send_btn"
     timeout: 15000
 - tapOn:
-    id: "text_input_send_button"
+    id: "chat_send_btn"
 
-# ── Wait for AI response ──
-- extendedWaitUntil:
-    visible:
-      id: "chat_thread_list"
-    timeout: 60000
-
-# ── Scroll to related questions and assert ──
+# Wait for the answer to render (suggestions are the end-of-stream signal)
 - scrollUntilVisible:
+    centerElement: false
     element:
-      text: ".*[Rr]elated.*"
+      id: "chat_suggested_questions"
     direction: DOWN
     timeout: 90000
+    speed: 40
 - assertVisible:
-    text: ".*[Rr]elated.*"
+    id: "chat_suggested_questions"

@@ -1,27 +1,46 @@
-appId: com.android.settings
-name: "TC35 - Chat History Retry Setup"
+appId: ${APP_ID}
+name: "TC35 - Setup: Sign Up + Seed Chat History (Setup for Retry Tests)"
+# priority: P2
+# description: Setup step for the TC35 chat-history-retry sequence — signs in, asks a question to seed history, returns to home so the operator can disable network and run TC35_chat_history_retry_assert next
+# Precondition: device ONLINE while this runs. Sequence:
+#   1) Run THIS test (signs up, seeds history, lands on home_screen).
+#   2) Disable network.
+#   3) Run TC35_chat_history_retry_assert (verifies global error
+#      appears when opening Chat History).
+#   4) Re-enable network.
+#   5) Run TC35_chat_history_retry_recovery (verifies retry loads history).
 tags:
   - chat
   - error
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
-# Login with phone number
+# ── Sign up ──
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_signup_button"
+      id: "drawer_signup_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_signup_button"
+    id: "drawer_signup_btn"
 
-- extendedWaitUntil:
-    visible:
-      text: "Sign up with phone number"
-    timeout: 10000
-- tapOn: "Sign up with phone number"
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
 
 - extendedWaitUntil:
     visible:
@@ -29,8 +48,14 @@ tags:
     timeout: 10000
 - tapOn:
     id: "auth_phone_input"
-- inputText: "7013733824"
-- tapOn: "Send via SMS"
+- inputText: "${PHONE_NUMBER}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_send_sms_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_send_sms_btn"
 
 - extendedWaitUntil:
     visible:
@@ -38,47 +63,59 @@ tags:
     timeout: 30000
 - tapOn:
     id: "auth_otp_input"
-- inputText: "1111"
+- inputText: "${OTP_CODE}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_verify_btn"
+    timeout: 5000
 - tapOn:
-    id: "auth_submit_button"
+    id: "auth_verify_btn"
 
 - extendedWaitUntil:
     visible:
       id: "account_success_screen"
     timeout: 30000
 - tapOn:
-    id: "account_success_continue"
+    id: "account_success_btn_continue"
 - extendedWaitUntil:
     visible:
       id: "home_screen"
     timeout: 15000
 
-# Ask a question to create chat history
+# ── Seed chat history with one question ──
 - tapOn:
-    id: "home_type_button"
-- tapOn: "Ask about your farm..."
-- inputText: "How to grow wheat in Kenya"
+    id: "primary_input_type_btn"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "text_input_send_button"
+      id: "chat_text_input"
     timeout: 5000
 - tapOn:
-    id: "text_input_send_button"
-
+    id: "chat_text_input"
+- inputText: "How to grow wheat"
+- hideKeyboard
 - extendedWaitUntil:
     visible:
-      id: "chat_thread_list"
-    timeout: 30000
+      id: "chat_send_btn"
+    timeout: 5000
+- tapOn:
+    id: "chat_send_btn"
+
 - scrollUntilVisible:
+    centerElement: false
     element:
-      text: ".*[Rr]elated.*"
+      id: "chat_suggested_questions"
     direction: DOWN
     timeout: 90000
+    speed: 40
 
-# Go back to home
+# ── Close chat → back to home ──
 - tapOn:
-    id: "chat_close_button"
+    id: "appbar_logo_left_btn"
 - extendedWaitUntil:
     visible:
       id: "home_screen"
     timeout: 10000
+- assertVisible:
+    id: "home_screen"

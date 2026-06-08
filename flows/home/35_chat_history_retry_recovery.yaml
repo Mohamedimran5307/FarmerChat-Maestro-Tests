@@ -1,22 +1,25 @@
-appId: com.android.settings
-name: "TC35 - Chat History Retry Recovery"
+appId: ${APP_ID}
+name: "TC35 - Retry After Restore → Chat History Loads"
+# priority: P2
+# description: Taps Retry on the global no-internet error after network is restored and verifies the Chat History list renders with the seeded conversation
+# Precondition: network connectivity must be RESTORED and the
+# device must be showing the global error screen from
+# TC35_chat_history_retry_assert. See setup for the full sequence.
 tags:
   - chat
   - error
   - regression
 ---
-# Tap Try again after internet is restored
 - tapOn:
     id: "error_retry_button"
 
-# Should navigate — check if we land on chat history or home
+# Retry may land on home OR directly on Chat History depending on
+# where the navigation stack came from. Handle both.
 - extendedWaitUntil:
     visible:
       id: "home_screen"
     timeout: 15000
     optional: true
-
-# Navigate to chat history via drawer
 - runFlow:
     when:
       visible:
@@ -31,7 +34,6 @@ tags:
       - tapOn:
           id: "drawer_see_all_button"
 
-# Assert chat history screen loads with the question we asked
 - extendedWaitUntil:
     visible:
       id: "chat_history_screen"
