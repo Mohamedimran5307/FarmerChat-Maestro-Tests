@@ -1,59 +1,63 @@
-appId: com.android.settings
-name: "TC35 - Chat Follow-up Question"
+appId: ${APP_ID}
+name: "TC36 - Chat Follow-up via Tapping a Suggested Question"
+# priority: P0
+# description: Sends a typed question, taps the first suggested follow-up question after the answer renders, and verifies a second AI answer streams back with its own suggestions block
 tags:
   - chat
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
-# Ask first question
+# ── First question ──
 - tapOn:
-    id: "home_type_button"
-- tapOn: "Ask about your farm..."
-- inputText: "How to grow maize in Kenya"
+    id: "primary_input_type_btn"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "text_input_send_button"
+      id: "chat_text_input"
     timeout: 5000
 - tapOn:
-    id: "text_input_send_button"
-
-# Wait for first AI response
+    id: "chat_text_input"
+- inputText: "How to grow maize"
+- hideKeyboard
 - extendedWaitUntil:
     visible:
-      id: "chat_thread_list"
-    timeout: 30000
-- scrollUntilVisible:
-    element:
-      text: ".*[Rr]elated.*"
-    direction: DOWN
-    timeout: 90000
-
-# Type follow-up question using Type button at bottom of chat
-- scrollUntilVisible:
-    element:
-      id: "home_type_button"
-    direction: DOWN
-    timeout: 10000
-- tapOn:
-    id: "home_type_button"
-- inputText: "What fertilizer should I use"
-- extendedWaitUntil:
-    visible:
-      id: "text_input_send_button"
+      id: "chat_send_btn"
     timeout: 5000
 - tapOn:
-    id: "text_input_send_button"
+    id: "chat_send_btn"
 
-# Assert second AI response with related questions
-- extendedWaitUntil:
-    visible:
-      id: "chat_thread_list"
-    timeout: 60000
 - scrollUntilVisible:
+    centerElement: true
     element:
-      text: ".*[Rr]elated.*"
+      id: "chat_suggested_questions"
     direction: DOWN
     timeout: 90000
+    speed: 40
 - assertVisible:
-    text: ".*[Rr]elated.*"
+    id: "chat_suggested_questions"
+
+# ── Follow-up: tap the first suggested question (not retype) ──
+# The chat view replaces (not appends) on each turn — chat_suggested_question_*
+# ids reset to _0/_1/_2 for the new answer. Without the notVisible gate
+# below, the subsequent scrollUntilVisible could match the OLD block
+# before Compose tears it down and pass instantly. (Same race we
+# documented in TC06.)
+- tapOn:
+    id: "chat_suggested_question_0"
+- extendedWaitUntil:
+    notVisible:
+      id: "chat_suggested_questions"
+    timeout: 5000
+
+# ── Wait for the follow-up answer ──
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "chat_suggested_questions"
+    direction: DOWN
+    timeout: 90000
+    speed: 40
+- assertVisible:
+    id: "chat_suggested_questions"

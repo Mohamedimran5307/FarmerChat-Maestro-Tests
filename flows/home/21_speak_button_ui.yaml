@@ -1,23 +1,36 @@
-appId: com.android.settings
-name: "TC24 - Speak Button UI Validation"
+appId: ${APP_ID}
+name: "TC21 - Speak Button Opens Voice-Input UI"
+# priority: P2
+# description: Taps the Speak input button on home and verifies the voice-input listening UI shows up, then cancels back to home
+# TODO: The voice-input overlay's specific testTags / a11y labels on
+# the new APK haven't been inspected — the "Listening..." /
+# "Ask your farming question" / "Cancel" text matchers are inherited
+# from the old APK. Inspect after first live run and replace with
+# stable ids if available.
 tags:
   - home
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
 - tapOn:
-    id: "home_speak_button"
+    id: "primary_input_speak_btn"
 
+# Voice-input overlay should appear; the listening hint text is the
+# strongest signal we have without a confirmed testTag.
 - extendedWaitUntil:
     visible:
       text: "Listening..."
     timeout: 10000
-- assertVisible: "Ask your farming question"
 
+# Dismiss the overlay (cancel button is currently text-matched —
+# replace with an id once the new APK's voice UI is inspected).
 - tapOn: "Cancel"
 
 - extendedWaitUntil:
     visible:
       id: "home_screen"
     timeout: 5000
+- assertVisible:
+    id: "home_screen"

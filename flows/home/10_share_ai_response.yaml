@@ -1,38 +1,63 @@
-appId: com.android.settings
-name: "TC13 - Type Question and Share AI Response"
+appId: ${APP_ID}
+name: "TC10 - Share an AI Response via System Chooser"
+# priority: P1
+# description: Sends a typed question, waits for the AI answer, taps Share on the answer's action row, and verifies the Android share-chooser opens
+# TODO: chat_share_btn / chat_save_btn lost their testTags on some
+# builds of the new APK (we saw chat_listen_btn surviving but the
+# other two missing during TC02 work). If this test starts failing on
+# the chat_share_btn lookup, the action-row testTags are gone — fall
+# back to a text:"Share" matcher or escalate to the app team.
 tags:
   - home
   - chat
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+# Open the type input and send a question
 - tapOn:
-    id: "home_type_button"
-- tapOn: "Ask about your farm..."
-- inputText: "How to prevent maize rust disease"
+    id: "primary_input_type_btn"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "text_input_send_button"
+      id: "chat_text_input"
     timeout: 5000
 - tapOn:
-    id: "text_input_send_button"
-
+    id: "chat_text_input"
+- inputText: "How to prevent maize rust disease"
+- hideKeyboard
 - extendedWaitUntil:
     visible:
-      id: "chat_thread_list"
-    timeout: 30000
+      id: "chat_send_btn"
+    timeout: 5000
+- tapOn:
+    id: "chat_send_btn"
+
+# Wait for the answer-complete signal (suggestions block renders last).
 - scrollUntilVisible:
+    centerElement: false
     element:
-      id: "chat_share_button"
+      id: "chat_suggested_questions"
     direction: DOWN
     timeout: 90000
-- tapOn:
-    id: "chat_share_button"
+    speed: 40
 
+# Scroll up to the action row to bring chat_share_btn into a tappable position.
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "chat_share_btn"
+    direction: UP
+    timeout: 10000
+- tapOn:
+    id: "chat_share_btn"
+
+# Android share chooser opens. Verify the system chooser surface
+# regardless of which share targets the device exposes.
 - extendedWaitUntil:
     visible:
-      text: "Sharing image"
+      id: "android:id/chooser_header"
     timeout: 15000
 - assertVisible:
     id: "android:id/chooser_header"
