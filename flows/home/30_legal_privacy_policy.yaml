@@ -1,31 +1,35 @@
-appId: com.android.settings
-name: "TC32 - Legal Dialog Privacy Policy on Language Screen"
+appId: ${APP_ID}
+name: "TC30 - Legal Dialog (Privacy Policy) on First-Launch Language Screen"
+# priority: P2
+# description: On a fresh install, taps the Privacy Policy link on the first-launch language screen and verifies the legal dialog opens
+# Same caveats as TC29 — no complete_onboarding, language_privacy_link
+# id may need to fall back to a text matcher if the new APK renders
+# the link only as inline text inside language_legal_text.
 tags:
   - onboarding
   - legal
   - regression
 ---
-    
-- setLocation:
-    latitude: 0.4717
-    longitude: 35.9650
+- launchApp
+
 - runFlow:
     when:
       visible:
         text: "Try again"
     commands:
       - tapOn: "Try again"
+
 - extendedWaitUntil:
     visible:
       id: "language_screen"
     timeout: 30000
 
-# ── Tap Privacy Policy link ──
 - tapOn:
     id: "language_privacy_link"
 
-# ── Assert Privacy Policy dialog opens ──
 - extendedWaitUntil:
     visible:
       text: "Privacy Policy"
     timeout: 15000
+- assertVisible:
+    text: "Privacy Policy"

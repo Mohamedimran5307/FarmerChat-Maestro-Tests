@@ -1,20 +1,33 @@
-appId: com.android.settings
-name: "TC22 - Help Privacy Policy"
+appId: ${APP_ID}
+name: "TC19 - Help → Privacy Policy Opens"
+# priority: P2
+# description: Opens Help from the drawer, taps the Privacy Policy entry, and verifies the Privacy Policy screen / dialog appears
+# TODO: help_privacy_policy testTag and the "LAST UPDATED: DECEMBER 2025"
+# date string both carry over from the old APK. The date will need
+# bumping with each privacy-policy revision — consider replacing
+# with a stable "Privacy Policy" header assertion only.
 tags:
   - help
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_help_button"
+      id: "drawer_help_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_help_button"
-
+    id: "drawer_help_btn"
 - extendedWaitUntil:
     visible:
       id: "help_screen"
@@ -27,10 +40,5 @@ tags:
     visible:
       text: "Privacy Policy"
     timeout: 15000
-
-- runFlow:
-    when:
-      visible:
-        text: "LAST UPDATED: DECEMBER 2025"
-    commands:
-      - assertVisible: "LAST UPDATED: DECEMBER 2025"
+- assertVisible:
+    text: "Privacy Policy"

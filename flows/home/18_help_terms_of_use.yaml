@@ -1,20 +1,32 @@
-appId: com.android.settings
-name: "TC21 - Help Terms of Use"
+appId: ${APP_ID}
+name: "TC18 - Help → Terms of Use Opens"
+# priority: P2
+# description: Opens Help from the drawer, taps the Terms of Use entry, and verifies the Terms screen / dialog appears
+# TODO: help_terms_of_use testTag carries over from the old APK and
+# needs a live-device confirmation on the new build. May now be
+# help_btn_terms or similar.
 tags:
   - help
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_help_button"
+      id: "drawer_help_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_help_button"
-
+    id: "drawer_help_btn"
 - extendedWaitUntil:
     visible:
       id: "help_screen"
@@ -27,10 +39,5 @@ tags:
     visible:
       text: "Terms of Use"
     timeout: 15000
-
-- runFlow:
-    when:
-      visible:
-        text: "Digital Green Foundation · FarmerChat"
-    commands:
-      - assertVisible: "Digital Green Foundation · FarmerChat"
+- assertVisible:
+    text: "Terms of Use"

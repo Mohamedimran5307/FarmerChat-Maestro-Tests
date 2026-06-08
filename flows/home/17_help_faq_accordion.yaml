@@ -1,26 +1,40 @@
-appId: com.android.settings
-name: "TC20 - Help and Support FAQ Accordion"
+appId: ${APP_ID}
+name: "TC17 - Help → FAQ Accordion Expands With Answer"
+# priority: P2
+# description: From the drawer, opens Help and verifies that tapping an FAQ question expands an accordion item with its answer body
+# TODO: faqs-en / faq-01 testTags carry over from the old APK and
+# need a live-device confirmation on the new build. The FAQ
+# question text ("What is FarmerChat...") and answer body may also
+# have been edited — refresh both after the first inspection.
 tags:
   - help
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_help_button"
+      id: "drawer_help_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_help_button"
-
+    id: "drawer_help_btn"
 - extendedWaitUntil:
     visible:
       id: "help_screen"
     timeout: 5000
-- assertVisible: "How to use FarmerChat"
 
+# Verify the Help section heading rendered, then expand the first FAQ.
+- assertVisible: "How to use FarmerChat"
 - tapOn: "What is FarmerChat and how can it help me?"
 
 - extendedWaitUntil:
