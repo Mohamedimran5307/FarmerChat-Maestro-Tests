@@ -1,58 +1,82 @@
-appId: com.android.settings
-name: "TC25 - Login with Phone Number and OTP"
+appId: ${APP_ID}
+name: "TC23 - Full Sign Up via Drawer (Phone + OTP → Home)"
+# priority: P0
+# description: Complete sign-up flow from the drawer Sign Up entry through phone, OTP, success screen, and Continue back to home
 tags:
   - auth
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_signup_button"
+      id: "drawer_signup_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_signup_button"
+    id: "drawer_signup_btn"
 
-- extendedWaitUntil:
-    visible:
-      text: "Sign up with phone number"
-    timeout: 10000
-- tapOn: "Sign up with phone number"
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
 
-# Enter phone number
+# Phone step
 - extendedWaitUntil:
     visible:
       id: "auth_phone_input"
     timeout: 10000
 - tapOn:
     id: "auth_phone_input"
-- inputText: "7013733824"
-- tapOn: "Send via SMS"
+- inputText: "${PHONE_NUMBER}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_send_sms_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_send_sms_btn"
 
-# Enter OTP
+# OTP step
 - extendedWaitUntil:
     visible:
       id: "auth_otp_input"
     timeout: 30000
 - tapOn:
     id: "auth_otp_input"
-- inputText: "1111"
+- inputText: "${OTP_CODE}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_verify_btn"
+    timeout: 5000
 - tapOn:
-    id: "auth_submit_button"
+    id: "auth_verify_btn"
 
-# Assert success screen
+# Success → Continue → home
 - extendedWaitUntil:
     visible:
       id: "account_success_screen"
     timeout: 30000
-- assertVisible: ".*all set.*"
-
-# Tap Continue and land on home
+- assertVisible:
+    text: ".*all set.*"
 - tapOn:
-    id: "account_success_continue"
+    id: "account_success_btn_continue"
 - extendedWaitUntil:
     visible:
       id: "home_screen"
     timeout: 15000
+- assertVisible:
+    id: "home_screen"

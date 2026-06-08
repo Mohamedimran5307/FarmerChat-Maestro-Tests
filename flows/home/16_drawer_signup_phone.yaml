@@ -1,26 +1,39 @@
-appId: com.android.settings
-name: "TC19 - Drawer Sign Up with Phone Number"
+appId: ${APP_ID}
+name: "TC16 - Drawer → Sign Up → Phone-Input Screen"
+# priority: P1
+# description: From the drawer, taps Sign Up, traverses the optional account-benefits screen, and verifies the auth phone-input screen renders
 tags:
   - navigation
   - auth
   - regression
 ---
+- launchApp
 - runFlow: ../../helpers/complete_onboarding.yaml
 
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
 - tapOn:
     id: "home_hamburger_button"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "drawer_signup_button"
+      id: "drawer_signup_btn"
     timeout: 5000
 - tapOn:
-    id: "drawer_signup_button"
+    id: "drawer_signup_btn"
 
-- extendedWaitUntil:
-    visible:
-      text: "Sign up with phone number"
-    timeout: 10000
-- tapOn: "Sign up with phone number"
+# Some builds insert an intermediate "account benefits" screen.
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
 
 - extendedWaitUntil:
     visible:
