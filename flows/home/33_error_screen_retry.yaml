@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC33 - No-Internet Error: Retry Recovers to Language Screen"
 # priority: P2
-# description: Taps Retry on the global no-internet error screen and verifies the app proceeds to the language screen (fresh-install path) once connectivity is restored
+# description: Verifies recovery from the global no-internet error: with network restored, taps the retry button and confirms the app proceeds to the first-launch language screen. Precondition: the error screen must already be visible (run TC33 assert first while offline, then re-enable network).
 # Precondition: network connectivity must be RESTORED before this
 # test runs. Sequence:
 #   1) Disable network on device.

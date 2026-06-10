@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC11 - Listen to AI Response (TTS Playback)"
 # priority: P0
-# description: Ensures users can listen to AI responses using the text-to-speech feature
+# description: Validates the text-to-speech playback control on AI answers: sends a typed question, waits for the answer with its action row, taps Listen, waits through the TTS engine's loading state, and confirms the button transitions Listen → Pause on first tap and Pause → Play on second tap.
 # requires: LANGUAGE_CODE=en
 tags:
   - home

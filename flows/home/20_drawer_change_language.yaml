@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC20 - Drawer: Change Language"
 # priority: P2
-# description: Opens the language chooser from the drawer, picks the configured ${LANGUAGE}, taps Save, and verifies a "language updated" confirmation
+# description: Validates the language-change flow from the drawer: opens the language chooser, selects the configured language, saves, and confirms a language-updated confirmation message appears.
 # TODO: language_chooser_screen and language_chooser_save_button
 # testTags carry over from the old APK; the new APK may use the same
 # language_screen / language_start_button ids the first-launch flow

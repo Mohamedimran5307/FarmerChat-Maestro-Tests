@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC09 - Answer Gender Profile-Prompt Card"
 # priority: P2
-# description: Finds the gender profile-prompt card, taps an option, and verifies the card dismisses afterwards
+# description: Verifies the interactive behavior of the gender profile-prompt card: when the card is rendered (it is Firebase-flag gated, so the assertion is guarded), taps the first selectable option and confirms the card dismisses after the selection is recorded.
 tags:
   - home
   - regression

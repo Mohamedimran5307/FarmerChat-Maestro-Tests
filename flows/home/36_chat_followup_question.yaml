@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC36 - Chat Follow-up via Suggested Question Tap"
 # priority: P0
-# description: Sends a typed question, taps the first suggested follow-up question after the answer renders, and verifies a second AI answer streams back with its own suggestions block
+# description: Verifies the suggested-question follow-up flow: sends an initial typed question, waits for the first AI answer to render with its suggested-questions block, taps the first suggested-question chip, and confirms a second AI answer renders with its own suggested-questions block.
 tags:
   - chat
   - regression

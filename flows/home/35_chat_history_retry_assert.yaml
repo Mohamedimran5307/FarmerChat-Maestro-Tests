@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC35 - Chat History Offline: Global Error Screen Asserts"
 # priority: P2
-# description: After signing in + seeding history (TC35_setup) and disabling network, opens the drawer's See-all entry and verifies the global no-internet error screen appears with its retry button
+# description: Verifies that opening chat history while offline surfaces the global no-internet error: from home, taps the drawer's 'See all' entry while offline and confirms the global error screen with its retry button renders. Precondition: TC35 setup has run online and the device is now offline.
 # Precondition: TC35_chat_history_retry_setup has run while online,
 # and the device is now OFFLINE on home_screen. See setup for the
 # full sequence.

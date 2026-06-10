@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC19 - Help: Open Privacy Policy"
 # priority: P2
-# description: Opens Help from the drawer, taps the Privacy Policy entry, and verifies the Privacy Policy screen / dialog appears
+# description: Verifies the Privacy Policy entry in the Help screen: opens Help from the drawer, taps the Privacy Policy entry, and confirms the legal document loads.
 # TODO: help_privacy_policy testTag and the "LAST UPDATED: DECEMBER 2025"
 # date string both carry over from the old APK. The date will need
 # bumping with each privacy-policy revision — consider replacing

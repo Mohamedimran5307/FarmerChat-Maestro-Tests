@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 name: "TC27 - Location Interstitial: Skip Returns to Home"
 # priority: P2
-# description: Taps the weather widget to open the location interstitial, taps Skip, and verifies the user is back on home
+# description: Validates the Skip option on the location-share interstitial: taps the home weather widget to open the interstitial, taps Skip, and confirms the user is returned to the home screen without granting location.
 # TODO: location_interstitial_skip is the OLD APK's id for the Skip
 # button. On the new APK the Share-Location CTA is
 # location_interstitial_cta_btn; the Skip button may be
