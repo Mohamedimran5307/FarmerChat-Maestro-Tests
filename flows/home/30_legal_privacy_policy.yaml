@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC30 - Legal Dialog (Privacy Policy) on First-Launch Language Screen"
+name: "TC30 - First-Launch: Open Privacy Policy from Language Screen"
 # priority: P2
 # description: On a fresh install, taps the Privacy Policy link on the first-launch language screen and verifies the legal dialog opens
 # Same caveats as TC29 — no complete_onboarding, language_privacy_link

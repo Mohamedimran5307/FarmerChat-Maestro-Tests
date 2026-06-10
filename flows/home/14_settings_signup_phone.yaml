@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC14 - Settings → Sign Up with Phone Number"
+name: "TC14 - Settings → Sign Up: Phone-Input Screen"
 # priority: P1
 # description: From Settings, taps the Sign Up entry, traverses the optional account-benefits screen, and verifies the phone-input screen appears
 tags:

@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC09 - Photo Query from Gallery → AI Response"
+name: "TC09 - Photo Question from Gallery → AI Response"
 # priority: P1
 # description: Taps the Photo input on home, picks an image from the system gallery, sends it as a question, and verifies the AI answer renders
 # TODO: The system gallery picker UI on the new APK has not yet been

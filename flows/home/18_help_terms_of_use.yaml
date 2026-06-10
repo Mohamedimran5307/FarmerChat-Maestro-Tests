@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC18 - Help → Terms of Use Opens"
+name: "TC18 - Help: Open Terms of Use"
 # priority: P2
 # description: Opens Help from the drawer, taps the Terms of Use entry, and verifies the Terms screen / dialog appears
 # TODO: help_terms_of_use testTag carries over from the old APK and

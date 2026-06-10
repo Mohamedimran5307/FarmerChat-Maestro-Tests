@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC25 - User Authentication, Settings &amp; Logout"
+name: "TC25 - Sign Up + Logout via Settings"
 # priority: P0
 # description: Verifies complete user flow including sign-up, login, and logout functionality
 tags:

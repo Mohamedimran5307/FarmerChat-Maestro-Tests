@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC35 - Retry After Restore → Chat History Loads"
+name: "TC35 - Chat History: Retry After Reconnect Loads History"
 # priority: P2
 # description: Taps Retry on the global no-internet error after network is restored and verifies the Chat History list renders with the seeded conversation
 # Precondition: network connectivity must be RESTORED and the

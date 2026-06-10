@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC10 - Crops Question Card Appears After Signup + Location"
+name: "TC10 - Crops Card Renders After Sign-Up + Location"
 # priority: P1
 # description: Signs up via phone OTP, grants location via the weather widget, and verifies a "crops do you grow" profile-prompt card renders on the home feed
 tags:

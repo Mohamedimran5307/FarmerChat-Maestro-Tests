@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC17 - Help → FAQ Accordion Expands With Answer"
+name: "TC17 - Help: FAQ Accordion Expands With Answer"
 # priority: P2
 # description: From the drawer, opens Help and verifies that tapping an FAQ question expands an accordion item with its answer body
 # TODO: faqs-en / faq-01 testTags carry over from the old APK and

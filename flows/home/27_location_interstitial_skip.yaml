@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC27 - Location Interstitial Skip Returns to Home"
+name: "TC27 - Location Interstitial: Skip Returns to Home"
 # priority: P2
 # description: Taps the weather widget to open the location interstitial, taps Skip, and verifies the user is back on home
 # TODO: location_interstitial_skip is the OLD APK's id for the Skip

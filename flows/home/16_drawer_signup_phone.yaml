@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC16 - Drawer → Sign Up → Phone-Input Screen"
+name: "TC16 - Drawer → Sign Up: Phone-Input Screen"
 # priority: P1
 # description: From the drawer, taps Sign Up, traverses the optional account-benefits screen, and verifies the auth phone-input screen renders
 tags:

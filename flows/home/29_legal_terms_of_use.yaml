@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC29 - Legal Dialog (Terms of Use) on First-Launch Language Screen"
+name: "TC29 - First-Launch: Open Terms of Use from Language Screen"
 # priority: P2
 # description: On a fresh install, taps the Terms of Use link on the first-launch language screen and verifies the legal dialog opens
 # Note: per CLAUDE.md the new APK shows legal text INLINE in

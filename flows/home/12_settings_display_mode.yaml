@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC12 - Settings Display Mode (Day / Night / Auto)"
+name: "TC12 - Settings: Toggle Display Mode (Day / Night / Auto)"
 # priority: P2
 # description: Opens Settings via the drawer and verifies all three appearance toggles update the active-mode label
 tags:

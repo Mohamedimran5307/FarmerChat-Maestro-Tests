@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC09 - Answer the Gender Profile-Prompt Card"
+name: "TC09 - Answer Gender Profile-Prompt Card"
 # priority: P2
 # description: Finds the gender profile-prompt card, taps an option, and verifies the card dismisses afterwards
 tags:

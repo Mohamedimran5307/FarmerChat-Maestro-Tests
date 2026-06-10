@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC05 - Location-Based Personalization (Weather Widget)"
+name: "TC05 - Location-Based Personalization via Weather Widget"
 # priority: P0
 # description: Ensures the app captures user GPS via the weather widget and displays relevant image questions and content cards based on location
 tags:

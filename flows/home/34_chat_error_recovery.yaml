@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC34 - Chat Inline-Error → Retry Renders Answer"
+name: "TC34 - Chat Inline Error: Retry Recovers After Reconnect"
 # priority: P2
 # description: Taps the inline retry button on the chat error (network restored) and verifies the AI answer + suggestions block render
 # Precondition: network connectivity must be RESTORED before this

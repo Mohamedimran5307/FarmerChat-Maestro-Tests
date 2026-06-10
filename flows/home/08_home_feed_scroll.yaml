@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC08 - Home Feed Scroll &amp; Card Tap"
+name: "TC08 - Home Feed Scrolls + Opens a Card's Chat"
 # priority: P1
 # description: Confirms that the home feed scrolls smoothly through multiple cards and that a feed card opens its associated chat
 tags:

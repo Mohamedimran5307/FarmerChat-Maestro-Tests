@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC10 - Share an AI Response via System Chooser"
+name: "TC10 - Share AI Response via System Chooser"
 # priority: P1
 # description: Sends a typed question, waits for the AI answer, taps Share on the answer's action row, and verifies the Android share-chooser opens
 # TODO: chat_share_btn / chat_save_btn lost their testTags on some

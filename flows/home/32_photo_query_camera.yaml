@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC32 - Photo Query via Camera Capture"
+name: "TC32 - Photo Question from Camera → AI Response"
 # priority: P2
 # description: Taps the Photo input on home, picks the Camera option, captures and accepts a photo, sends it as a chat question, and verifies the AI answer renders
 # TODO: This test depends on the device's native camera UI
