@@ -383,25 +383,25 @@ setup_test() {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DISCOVER TEST CASES from flows/home/<NN>_*.yaml
+# DISCOVER TEST CASES from flows/home/TC_<NN>_*.yaml
 # Each TC entry is built from the YAML front-matter:
 #   `name:`          → display name (required; fallback = filename)
 #   `# priority:`    → P0/P1/P2 comment in front-matter (default P1)
 #   `# description:` → comment in front-matter (default = name minus prefix)
-# Sorted by filename so 01_* runs before 02_* etc. Adding a new TC means
-# dropping a <NN>_<slug>.yaml into flows/home/ — no edit here needed.
-# Multiple files can share the same leading NN (e.g. 09_gender_selection
-# and 09_photo_query_gallery both group under TC09); CLI filter "TC09"
-# runs every file in the group.
+# Sorted by filename so TC_01_* runs before TC_02_* etc. Adding a new TC
+# means dropping a TC_<NN>_<slug>.yaml into flows/home/ — no edit here.
+# Multiple files can share the same leading NN (e.g. TC_09_gender_card_select
+# and TC_09_photo_question_gallery both group under TC_09); CLI filter
+# "TC_09" runs every file in the group.
 # Format kept identical to the old hardcoded array: TC_ID|FILE|NAME|DESC|PRIO
 # ─────────────────────────────────────────────────────────────────────────────
 declare -a TEST_CASES=()
-for tc_path in "$SCRIPT_DIR"/flows/home/[0-9]*_*.yaml; do
+for tc_path in "$SCRIPT_DIR"/flows/home/TC_[0-9]*_*.yaml; do
   [ -f "$tc_path" ] || continue
   tc_file=$(basename "$tc_path" .yaml)
-  # TC_ID = "TC" + leading digits of filename, e.g. 05_… → TC05, 11_… → TC11
-  if [[ "$tc_file" =~ ^([0-9]+) ]]; then
-    tc_id="TC${BASH_REMATCH[1]}"
+  # TC_ID = "TC_" + leading digits of filename, e.g. TC_05_… → TC_05
+  if [[ "$tc_file" =~ ^TC_([0-9]+) ]]; then
+    tc_id="TC_${BASH_REMATCH[1]}"
   else
     continue
   fi
@@ -430,11 +430,11 @@ for tc_path in "$SCRIPT_DIR"/flows/home/[0-9]*_*.yaml; do
   # If no `# description:` comment, fall back to the name stripped of its
   # "TC## - " prefix so reports still get something readable.
   if [ -z "$tc_desc" ]; then
-    tc_desc=$(echo "$tc_name" | sed -E 's/^TC[0-9]+[[:space:]]*-[[:space:]]*//')
+    tc_desc=$(echo "$tc_name" | sed -E 's/^TC_?[0-9]+[[:space:]]*-[[:space:]]*//')
   fi
   # Strip "TC## - " from the displayed name too so the runner's progress
   # column stays narrow (matches the old hand-curated names).
-  display_name=$(echo "$tc_name" | sed -E 's/^TC[0-9]+[[:space:]]*-[[:space:]]*//')
+  display_name=$(echo "$tc_name" | sed -E 's/^TC_?[0-9]+[[:space:]]*-[[:space:]]*//')
 
   # Honor `# requires: KEY=VALUE` constraints (e.g. LANGUAGE_CODE=en for
   # TC04 — its assertions read English accessibilityText). Skip the TC

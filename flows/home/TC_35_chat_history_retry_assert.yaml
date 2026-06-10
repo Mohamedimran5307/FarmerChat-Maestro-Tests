@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: "TC_35 - Chat History Offline: Global Error Screen Asserts"
+# priority: P2
+# description: Verifies that opening chat history while offline surfaces the global no-internet error: from home, taps the drawer's 'See all' entry while offline and confirms the global error screen with its retry button renders. Precondition: TC35 setup has run online and the device is now offline.
+# Precondition: TC35_chat_history_retry_setup has run while online,
+# and the device is now OFFLINE on home_screen. See setup for the
+# full sequence.
+tags:
+  - chat
+  - error
+  - regression
+---
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      id: "drawer_see_all_button"
+    timeout: 5000
+- tapOn:
+    id: "drawer_see_all_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "error_screen"
+    timeout: 30000
+- assertVisible:
+    id: "error_retry_button"

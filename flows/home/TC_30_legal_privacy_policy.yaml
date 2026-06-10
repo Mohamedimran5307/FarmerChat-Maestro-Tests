@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+name: "TC_30 - First-Launch: Open Privacy Policy from Language Screen"
+# priority: P2
+# description: Verifies the Privacy Policy link on the first-launch language screen: on a fresh-install state, taps the Privacy Policy link in the language screen's inline legal text and confirms the Privacy document opens.
+# Same caveats as TC29 — no complete_onboarding, language_privacy_link
+# id may need to fall back to a text matcher if the new APK renders
+# the link only as inline text inside language_legal_text.
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+- tapOn:
+    id: "language_privacy_link"
+
+- extendedWaitUntil:
+    visible:
+      text: "Privacy Policy"
+    timeout: 15000
+- assertVisible:
+    text: "Privacy Policy"

@@ -1,0 +1,44 @@
+appId: ${APP_ID}
+name: "TC_07 - Feed Card Opens Read-Full-Advice Chat"
+# priority: P1
+# description: Confirms that tapping the 'Ask Now' CTA on the first home-feed content card opens the feed-card chat variant and renders its 'Read full advice' button (the entry point to the expanded answer view).
+tags:
+  - home
+  - regression
+---
+- launchApp
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# Ensure the expanded home top before scrolling for a card. scrollUntilVisible
+# on home_hamburger_button is a no-op when already at top, and rides through
+# the collapsing-header settling animation otherwise.
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
+
+# Bring the first content feed card's "Ask Now" CTA into a tappable
+# position. centerElement guards against the button rendering on top of
+# the system nav bar (see commit 3502503 in core_scenarios for the prior
+# occurrence where Maestro's tap landed on the OS Home key).
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "content_card_start_chat_btn"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "content_card_start_chat_btn"
+    index: 0
+
+# Feed-card-initiated chats use the "Read full advice" UI variant
+# instead of the listen/share/save action row — chat_read_full_advice_btn
+# appears once the preview chat content renders.
+- extendedWaitUntil:
+    visible:
+      id: "chat_read_full_advice_btn"
+    timeout: 90000
+- assertVisible:
+    id: "chat_read_full_advice_btn"

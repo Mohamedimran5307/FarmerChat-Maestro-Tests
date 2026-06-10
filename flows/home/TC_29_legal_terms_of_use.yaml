@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+name: "TC_29 - First-Launch: Open Terms of Use from Language Screen"
+# priority: P2
+# description: Verifies the Terms of Use link on the first-launch language screen: on a fresh-install state, taps the Terms of Use link in the language screen's inline legal text and confirms the Terms document opens.
+# Note: per CLAUDE.md the new APK shows legal text INLINE in
+# language_legal_text on the language screen — there's no separate
+# privacy-policy screen. The `language_terms_link` testTag carries
+# over from the old APK; if the new build renders the link inside
+# language_legal_text without its own id, this test needs to fall
+# back to a `text:"Terms of Use"` tap matcher.
+# Doesn't run complete_onboarding — the runner's setup_test already
+# wipes app state, so launchApp lands on the first-launch language
+# screen directly.
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+- tapOn:
+    id: "language_terms_link"
+
+- extendedWaitUntil:
+    visible:
+      text: "Terms of Use"
+    timeout: 15000
+- assertVisible:
+    text: "Terms of Use"
