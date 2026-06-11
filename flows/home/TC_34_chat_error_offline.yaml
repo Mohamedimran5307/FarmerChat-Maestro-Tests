@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_34 - Chat Send Offline: Inline Error + Retry Button"
+name: "TC34 - Chat Send Offline: Inline Error + Retry Button"
 # priority: P2
 # description: Verifies the inline chat error when sending a question while offline: types and submits a question, then confirms an inline error message with an inline retry button appears inside the chat (not the global error screen). Precondition: TC34 onboarding has completed online, then the device was switched offline before this test runs.
 # Precondition: device must be OFFLINE before this test runs (after

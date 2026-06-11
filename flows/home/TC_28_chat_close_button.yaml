@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_28 - Chat (X) Close Returns to Home"
+name: "TC28 - Chat (X) Close Returns to Home"
 # priority: P1
 # description: Verifies the chat screen's close button: sends a typed question, waits for the AI answer to render, taps the appbar X (close) button, and confirms the user is returned to the home screen.
 tags:

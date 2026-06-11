@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_38 - Legal Dialogs: Open and Close (Terms + Privacy)"
+name: "TC38 - Legal Dialogs: Open and Close (Terms + Privacy)"
 # priority: P2
 # description: Verifies opening and closing both legal documents from the first-launch language screen: opens Terms of Use and closes via system back, opens Privacy Policy and closes via system back, confirming the language screen with its Start button is restored after each close.
 # Same caveats as TC29/TC30 about the link testTags / inline legal-text

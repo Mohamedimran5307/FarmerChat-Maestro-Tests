@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_14 - Settings → Sign Up: Phone-Input Screen"
+name: "TC14 - Settings → Sign Up: Phone-Input Screen"
 # priority: P1
 # description: Verifies the sign-up entry point from the Settings screen: taps the auth entry (Sign Up label when signed out), traverses the optional account-benefits intermediate screen, and confirms the phone-input screen appears.
 tags:

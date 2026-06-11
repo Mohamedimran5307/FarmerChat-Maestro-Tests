@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_25 - Sign Up + Logout via Settings"
+name: "TC25 - Sign Up + Logout via Settings"
 # priority: P0
 # description: Complete auth lifecycle test: signs up via the drawer (phone + OTP), navigates to Settings, taps the auth entry (now showing Logout when signed in), and confirms the user is returned to the first-launch language screen as a fresh session.
 tags:

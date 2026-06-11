@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_34 - Onboard to Home (Offline-Error Setup)"
+name: "TC34 - Onboard to Home (Offline-Error Setup)"
 # priority: P2
 # description: Setup step for the TC34 offline-error sequence: completes onboarding while online and lands on the home screen so the operator can disable network before running the offline-send test.
 # Precondition: device ONLINE while this runs. Sequence:

@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_06 - Type a Question → AI Response with Suggestions"
+name: "TC06 - Type a Question → AI Response with Suggestions"
 # priority: P0
 # description: Validates the core typed-question chat experience: opens the Type input bar, submits a farming question, waits for the AI answer to stream in with its suggested-questions block, then exercises a follow-up turn by tapping the first suggested question and verifying a second answer renders.
 tags:

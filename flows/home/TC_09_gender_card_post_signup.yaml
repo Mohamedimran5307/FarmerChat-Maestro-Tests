@@ -1,5 +1,5 @@
 appId: org.digitalgreen.farmer.chat  #${APP_ID}
-name: "TC_09 - Gender Card Renders After Sign-Up + Location"
+name: "TC09 - Gender Card Renders After Sign-Up + Location"
 # priority: P1
 # description: End-to-end sign-up + profile-card test: completes the drawer-initiated phone+OTP sign-up flow, grants location via the weather widget, returns home, and confirms that all four options on the gender profile-prompt card (Female / Male / Other / Prefer not to say) render on the home feed.
 tags:

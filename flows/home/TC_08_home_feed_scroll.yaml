@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_08 - Home Feed Scrolls + Opens a Card's Chat"
+name: "TC08 - Home Feed Scrolls + Opens a Card's Chat"
 # priority: P1
 # description: Verifies smooth scrolling through the home feed: starts at the expanded top (hamburger visible), scrolls deep enough that additional cards continue to render past the original viewport, returns to the top, then taps the first content card and confirms the feed-card chat with its 'Read full advice' button opens.
 tags:

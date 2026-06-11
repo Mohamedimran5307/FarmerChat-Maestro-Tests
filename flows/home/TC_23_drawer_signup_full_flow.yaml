@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_23 - Full Sign Up via Drawer (Phone + OTP → Home)"
+name: "TC23 - Full Sign Up via Drawer (Phone + OTP → Home)"
 # priority: P0
 # description: Complete end-to-end sign-up test: opens the drawer, enters the sign-up flow, submits the configured phone number, enters the OTP code, taps Continue on the account-success screen, and confirms the user lands back on the home screen as an authenticated user.
 tags:

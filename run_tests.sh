@@ -399,9 +399,11 @@ declare -a TEST_CASES=()
 for tc_path in "$SCRIPT_DIR"/flows/home/TC_[0-9]*_*.yaml; do
   [ -f "$tc_path" ] || continue
   tc_file=$(basename "$tc_path" .yaml)
-  # TC_ID = "TC_" + leading digits of filename, e.g. TC_05_… → TC_05
+  # TC_ID = "TC" + leading digits of filename, e.g. TC_05_… → TC05
+  # (the file uses TC_NN_ for filesystem readability, the CLI filter
+  # uses TCNN without the underscore to match the previous convention.)
   if [[ "$tc_file" =~ ^TC_([0-9]+) ]]; then
-    tc_id="TC_${BASH_REMATCH[1]}"
+    tc_id="TC${BASH_REMATCH[1]}"
   else
     continue
   fi

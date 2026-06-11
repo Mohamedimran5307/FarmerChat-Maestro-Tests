@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_24 - Drawer \"See All\" Opens Chat History Screen"
+name: "TC24 - Drawer \"See All\" Opens Chat History Screen"
 # priority: P1
 # description: Verifies the chat history screen via the drawer's 'See all' entry: signs up, seeds chat history with a question, returns home, opens the drawer, opens chat history, and confirms the seeded conversation is listed; then taps the entry to reopen the conversation.
 # TODO: drawer_see_all_button / chat_history_screen / chat_history_list

@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_10 - Crops Card Renders After Sign-Up + Location"
+name: "TC10 - Crops Card Renders After Sign-Up + Location"
 # priority: P1
 # description: End-to-end sign-up + profile-card test: completes phone+OTP sign-up, grants location via the weather widget, returns home, and confirms that a 'crops do you grow' profile-prompt card renders on the home feed (the card is Firebase-flag gated and will not appear when the flag is off).
 tags:

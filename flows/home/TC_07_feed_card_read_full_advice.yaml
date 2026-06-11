@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_07 - Feed Card Opens Read-Full-Advice Chat"
+name: "TC07 - Feed Card Opens Read-Full-Advice Chat"
 # priority: P1
 # description: Confirms that tapping the 'Ask Now' CTA on the first home-feed content card opens the feed-card chat variant and renders its 'Read full advice' button (the entry point to the expanded answer view).
 tags:

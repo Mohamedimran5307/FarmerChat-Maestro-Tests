@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC_31 - Drawer \"Past Advice\" Lists Recent Chats"
+name: "TC31 - Drawer \"Past Advice\" Lists Recent Chats"
 # priority: P1
 # description: Verifies the drawer's recent-chat list: signs up, seeds chat history with a 'wheat' question, returns home, opens the drawer, confirms the seeded conversation appears under 'Past Advice', then taps the entry to reopen the conversation in full.
 # TODO: "Past Advice" section header carries over from the old APK
