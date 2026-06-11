@@ -1,0 +1,26 @@
+appId: org.digitalgreen.farmer.chat
+name: "TC32 - Chat Send Offline: Inline Error + Retry Button"
+# priority: P2
+# description: Verifies the inline chat error when sending a question while offline: types and submits a question, then confirms an inline error message with an inline retry button appears inside the chat (not the global error screen). Precondition: TC34_chat_error_setup has completed online, then the device was switched offline before this test runs.
+# Precondition: device must be OFFLINE before this test runs (after
+# TC34_chat_error_setup has put the app on home_screen while still
+# online). The runner does NOT toggle airplane mode.
+# Pairs with TC33_chat_error_recovery for the after-restore retry.
+# TODO: chat_inline_error / chat_inline_retry_button testTags carry
+# over from the old APK; the new build may use different ids.
+tags:
+  - chat
+  - error
+  - regression
+---
+- runFlow:
+    file: ../../helpers/compose_typed_question.yaml
+    env:
+      QUESTION_TEXT: "How to grow maize"
+
+- extendedWaitUntil:
+    visible:
+      id: "chat_inline_error"
+    timeout: 60000
+- assertVisible:
+    id: "chat_inline_retry_button"

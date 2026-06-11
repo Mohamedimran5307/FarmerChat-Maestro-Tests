@@ -1,0 +1,96 @@
+appId: org.digitalgreen.farmer.chat
+---
+# ============================================================
+# FULL SIGN-UP via drawer → phone + OTP → home_screen
+# ============================================================
+# Performs the complete drawer-initiated phone-OTP sign-up:
+#   home_hamburger → drawer_signup_btn → (optional account_benefits)
+#   → phone input + send_sms → otp input + verify
+#   → account_success → continue → home_screen
+#
+# Requires env vars (loaded by run_tests.sh from config/env.yaml +
+# config/env.local.yaml):
+#   PHONE_NUMBER  — the phone to sign up with
+#   OTP_CODE      — the OTP to verify with
+#
+# Usage from a flow under flows/home/:
+#   - runFlow: ../../helpers/full_signup.yaml
+#
+# NOT to be called by tests that verify sign-up entry points
+# themselves (TC12 settings_signup_phone, TC13 settings_signup_skip,
+# TC14 drawer_signup_phone, TC20 drawer_signup_full_flow) — those
+# tests must keep the flow inline so they are testing the user
+# journey rather than this helper.
+# ============================================================
+
+# Ensure expanded top so the hamburger is in the hierarchy.
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
+
+# Drawer → Sign Up
+- tapOn:
+    id: "home_hamburger_button"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_btn"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_btn"
+
+# Optional account-benefits intermediate screen (some builds insert it)
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
+
+# Phone step
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- inputText: "${PHONE_NUMBER}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_send_sms_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_send_sms_btn"
+
+# OTP step
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: "${OTP_CODE}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_verify_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_verify_btn"
+
+# Account-success → Continue → home_screen
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_btn_continue"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000

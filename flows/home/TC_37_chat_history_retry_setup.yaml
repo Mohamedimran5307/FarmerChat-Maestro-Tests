@@ -1,0 +1,43 @@
+appId: org.digitalgreen.farmer.chat
+name: "TC37 - Seed Chat History (Retry-Test Setup)"
+# priority: P2
+# description: Setup step for the TC35 chat-history-retry sequence: signs up while online, asks a 'wheat' question to seed chat history, and returns to the home screen so the operator can disable network before running the offline-history-load test.
+# Precondition: device ONLINE while this runs. Sequence:
+#   1) Run THIS test (signs up, seeds history, lands on home_screen).
+#   2) Disable network.
+#   3) Run TC35_chat_history_retry_assert (verifies global error
+#      appears when opening Chat History).
+#   4) Re-enable network.
+#   5) Run TC35_chat_history_retry_recovery (verifies retry loads history).
+tags:
+  - chat
+  - error
+  - regression
+---
+- launchApp
+- runFlow: ../../helpers/complete_onboarding.yaml
+- runFlow: ../../helpers/full_signup.yaml
+
+# ── Seed chat history with one question ──
+- runFlow:
+    file: ../../helpers/compose_typed_question.yaml
+    env:
+      QUESTION_TEXT: "How to grow wheat"
+
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "chat_suggested_questions"
+    direction: DOWN
+    timeout: 90000
+    speed: 40
+
+# ── Close chat → back to home ──
+- tapOn:
+    id: "appbar_logo_left_btn"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 10000
+- assertVisible:
+    id: "home_screen"

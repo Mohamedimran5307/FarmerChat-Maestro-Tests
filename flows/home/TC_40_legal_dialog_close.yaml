@@ -1,0 +1,57 @@
+appId: ${APP_ID}
+name: "TC40 - Legal Dialogs: Open and Close (Terms + Privacy)"
+# priority: P2
+# description: Verifies opening and closing both legal documents from the first-launch language screen: opens Terms of Use and closes via system back, opens Privacy Policy and closes via system back, confirming the language screen with its Start button is restored after each close.
+# Same caveats as TC29/TC30 about the link testTags / inline legal-text
+# fallback. Closing via system back is assumed; if the dialog has a
+# dedicated close button, prefer tapping it.
+tags:
+  - onboarding
+  - legal
+  - regression
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible:
+        text: "Try again"
+    commands:
+      - tapOn: "Try again"
+
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 30000
+
+# ── Open Terms of Use, verify, close, verify language screen restored ──
+- tapOn:
+    id: "language_terms_link"
+- extendedWaitUntil:
+    visible:
+      text: "Terms of Use"
+    timeout: 15000
+- assertVisible:
+    text: "Terms of Use"
+- back
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 10000
+
+# ── Open Privacy Policy, verify, close, verify language screen restored ──
+- tapOn:
+    id: "language_privacy_link"
+- extendedWaitUntil:
+    visible:
+      text: "Privacy Policy"
+    timeout: 15000
+- assertVisible:
+    text: "Privacy Policy"
+- back
+- extendedWaitUntil:
+    visible:
+      id: "language_screen"
+    timeout: 10000
+- assertVisible:
+    id: "language_start_button"
