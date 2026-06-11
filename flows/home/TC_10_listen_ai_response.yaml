@@ -1,0 +1,74 @@
+appId: ${APP_ID}
+name: "TC10 - Listen to AI Response (TTS Playback)"
+# priority: P0
+# description: Validates the text-to-speech playback control on AI answers: sends a typed question, waits for the answer with its action row, taps Listen, waits through the TTS engine's loading state, and confirms the button transitions Listen → Pause on first tap and Pause → Play on second tap.
+# requires: LANGUAGE_CODE=en
+tags:
+  - home
+  - chat
+  - regression
+---
+- launchApp
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# Open the type input bar. waitForAnimationToEnd guards against the
+# chat_text_input being declared visible while still animating in.
+- tapOn:
+    id: "primary_input_type_btn"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "chat_text_input"
+    timeout: 3000
+- tapOn:
+    id: "chat_text_input"
+- inputText: "What are common tomato diseases"
+# Dismiss the IME so chat_send_btn can't be occluded on cramped displays.
+# chat_send_btn is gated on chat_text_input having non-empty text, NOT on
+# the keyboard being up, so this is safe.
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "chat_send_btn"
+    timeout: 3000
+- tapOn:
+    id: "chat_send_btn"
+
+# scrollUntilVisible waits up to 90s for chat_listen_btn, which appears
+# only after the answer finishes streaming.
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "chat_listen_btn"
+    direction: DOWN
+    timeout: 90000
+
+# State machine: Listen (idle) → Pause (playing) → Play (paused).
+# These strings are accessibilityText on the icon inside chat_listen_btn;
+# Maestro's text: matcher also reads a11y labels. Strings are English-only
+# — TC04 is bound to LANGUAGE_CODE=en via config/env.yaml.
+- assertVisible:
+    text: "Listen"
+
+# Start playback. assertVisible text:"Pause" is the actual proof that
+# audio playback started — not just that the button is clickable.
+- tapOn:
+    id: "chat_listen_btn"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible:
+      text: "Pause"
+    timeout: 5000
+
+# Pause playback. State should flip to "Play" (resumable).
+- tapOn:
+    id: "chat_listen_btn"
+- waitForAnimationToEnd:
+    timeout: 2000
+- extendedWaitUntil:
+    visible:
+      text: "Play"
+    timeout: 5000
+- assertVisible:
+    id: "chat_screen"

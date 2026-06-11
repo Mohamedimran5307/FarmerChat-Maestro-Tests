@@ -1,0 +1,145 @@
+appId: ${APP_ID}
+name: "TC29 - Drawer \"Past Advice\" Lists Recent Chats"
+# priority: P1
+# description: Verifies the drawer's recent-chat list: signs up, seeds chat history with a 'wheat' question, returns home, opens the drawer, confirms the seeded conversation appears under 'Past Advice', then taps the entry to reopen the conversation in full.
+# TODO: "Past Advice" section header carries over from the old APK
+# (no confirmed testTag). The new APK may use a stable id like
+# drawer_past_advice_section or drawer_chat_history_item — replace
+# the text matcher after a live inspection.
+tags:
+  - drawer
+  - chat
+  - regression
+---
+- launchApp
+- runFlow: ../../helpers/complete_onboarding.yaml
+
+# ── Sign up via drawer → phone OTP ──
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
+- tapOn:
+    id: "home_hamburger_button"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "drawer_signup_btn"
+    timeout: 5000
+- tapOn:
+    id: "drawer_signup_btn"
+
+- runFlow:
+    when:
+      visible:
+        id: "account_benefits_btn_signup"
+    commands:
+      - tapOn:
+          id: "account_benefits_btn_signup"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_phone_input"
+    timeout: 10000
+- tapOn:
+    id: "auth_phone_input"
+- inputText: "${PHONE_NUMBER}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_send_sms_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_send_sms_btn"
+
+- extendedWaitUntil:
+    visible:
+      id: "auth_otp_input"
+    timeout: 30000
+- tapOn:
+    id: "auth_otp_input"
+- inputText: "${OTP_CODE}"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "auth_verify_btn"
+    timeout: 5000
+- tapOn:
+    id: "auth_verify_btn"
+
+- extendedWaitUntil:
+    visible:
+      id: "account_success_screen"
+    timeout: 30000
+- tapOn:
+    id: "account_success_btn_continue"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Ask a question to seed chat history ──
+- tapOn:
+    id: "primary_input_type_btn"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "chat_text_input"
+    timeout: 5000
+- tapOn:
+    id: "chat_text_input"
+- inputText: "How to control pests in wheat"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "chat_send_btn"
+    timeout: 5000
+- tapOn:
+    id: "chat_send_btn"
+
+# Wait for the answer to fully render (suggestions appear last)
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "chat_suggested_questions"
+    direction: DOWN
+    timeout: 90000
+    speed: 40
+
+# ── Close chat → back to home ──
+- tapOn:
+    id: "appbar_logo_left_btn"
+- extendedWaitUntil:
+    visible:
+      id: "home_screen"
+    timeout: 15000
+
+# ── Open drawer and verify the seeded chat appears under Past Advice ──
+- scrollUntilVisible:
+    centerElement: false
+    element:
+      id: "home_hamburger_button"
+    direction: UP
+    timeout: 15000
+- tapOn:
+    id: "home_hamburger_button"
+- extendedWaitUntil:
+    visible:
+      text: "Past Advice"
+    timeout: 10000
+- assertVisible:
+    text: ".*wheat.*"
+
+# ── Tap the recent chat item to reopen it ──
+- tapOn:
+    text: ".*wheat.*"
+    index: 0
+
+- extendedWaitUntil:
+    visible:
+      text: "How to control pests in wheat"
+    timeout: 30000
+- assertVisible:
+    text: "How to control pests in wheat"
