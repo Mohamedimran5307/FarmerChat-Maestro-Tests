@@ -1,6 +1,7 @@
 appId: org.digitalgreen.farmer.chat
 name: "TC21 - Drawer \"See All\" Opens Chat History Screen"
 # priority: P1
+# requires: PHONE_NUMBER,OTP_CODE
 # description: Verifies the chat history screen via the drawer's 'See all' entry: signs up, seeds chat history with a question, returns home, opens the drawer, opens chat history, and confirms the seeded conversation is listed; then taps the entry to reopen the conversation.
 # TODO: drawer_see_all_button / chat_history_screen / chat_history_list
 # testTags carry over from the old APK and need a live-device check.

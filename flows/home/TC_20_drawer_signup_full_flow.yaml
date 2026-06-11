@@ -1,6 +1,7 @@
 appId: ${APP_ID}
 name: "TC20 - Full Sign Up via Drawer (Phone + OTP → Home)"
 # priority: P0
+# requires: PHONE_NUMBER,OTP_CODE
 # description: Complete end-to-end sign-up test: opens the drawer, enters the sign-up flow, submits the configured phone number, enters the OTP code, taps Continue on the account-success screen, and confirms the user lands back on the home screen as an authenticated user.
 tags:
   - auth

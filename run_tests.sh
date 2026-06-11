@@ -438,17 +438,45 @@ for tc_path in "$SCRIPT_DIR"/flows/home/TC_[0-9]*_*.yaml; do
   # column stays narrow (matches the old hand-curated names).
   display_name=$(echo "$tc_name" | sed -E 's/^TC_?[0-9]+[[:space:]]*-[[:space:]]*//')
 
-  # Honor `# requires: KEY=VALUE` constraints (e.g. LANGUAGE_CODE=en for
-  # TC04 — its assertions read English accessibilityText). Skip the TC
-  # with a yellow warning if the constraint isn't met by the loaded env.
+  # Honor `# requires:` constraints. Two forms are supported, and the
+  # value can be a comma-separated list to require multiple things:
+  #
+  #   # requires: KEY=VALUE         → env var KEY must equal VALUE
+  #   # requires: KEY               → env var KEY must be non-empty and
+  #                                    not the literal "${KEY}" (= unresolved)
+  #   # requires: KEY=VALUE,VAR2    → all comma-separated entries must pass
+  #
+  # When any constraint fails, the TC is SKIPPED with a yellow warning
+  # rather than run-and-fail. Cleaner signal in the report than a
+  # cryptic OTP timeout 30s into a sign-up flow.
   if [ -n "$tc_requires" ]; then
-    req_key="${tc_requires%%=*}"
-    req_value="${tc_requires#*=}"
-    actual="${!req_key:-}"
-    if [ "$actual" != "$req_value" ]; then
-      echo -e "${YELLOW}  ⟳ Skipping $tc_id: requires $tc_requires (current ${req_key}=${actual:-<unset>})${NC}"
-      continue
-    fi
+    SKIP_TC=0
+    IFS=',' read -ra REQ_LIST <<< "$tc_requires"
+    for req in "${REQ_LIST[@]}"; do
+      # Strip leading/trailing whitespace from each entry.
+      req="${req#"${req%%[![:space:]]*}"}"
+      req="${req%"${req##*[![:space:]]}"}"
+      if [[ "$req" == *=* ]]; then
+        req_key="${req%%=*}"
+        req_value="${req#*=}"
+        actual="${!req_key:-}"
+        if [ "$actual" != "$req_value" ]; then
+          echo -e "${YELLOW}  ⟳ Skipping $tc_id: requires $req (current ${req_key}=${actual:-<unset>})${NC}"
+          SKIP_TC=1
+          break
+        fi
+      else
+        req_key="$req"
+        actual="${!req_key:-}"
+        # Treat empty AND unresolved "${VAR}" placeholders as missing.
+        if [ -z "$actual" ] || [ "$actual" = "\${${req_key}}" ]; then
+          echo -e "${YELLOW}  ⟳ Skipping $tc_id: requires env var $req_key to be set (currently ${actual:-<unset>}). Add it to config/env.local.yaml.${NC}"
+          SKIP_TC=1
+          break
+        fi
+      fi
+    done
+    [ "$SKIP_TC" = "1" ] && continue
   fi
 
   TEST_CASES+=("${tc_id}|${tc_file}|${display_name}|${tc_desc}|${tc_priority}")

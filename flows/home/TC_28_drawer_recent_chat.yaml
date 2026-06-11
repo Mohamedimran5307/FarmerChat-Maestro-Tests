@@ -1,6 +1,7 @@
 appId: org.digitalgreen.farmer.chat
 name: "TC28 - Drawer \"Past Advice\" Lists Recent Chats"
 # priority: P1
+# requires: PHONE_NUMBER,OTP_CODE
 # description: Verifies the drawer's recent-chat list: signs up, seeds chat history with a 'wheat' question, returns home, opens the drawer, confirms the seeded conversation appears under 'Past Advice', then taps the entry to reopen the conversation in full.
 # TODO: "Past Advice" section header carries over from the old APK
 # (no confirmed testTag). The new APK may use a stable id like
