@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 name: "TC38 - Chat Follow-up via Suggested Question Tap"
 # priority: P0
 # description: Verifies the suggested-question follow-up flow: sends an initial typed question, waits for the first AI answer to render with its suggested-questions block, taps the first suggested-question chip, and confirms a second AI answer renders with its own suggested-questions block.

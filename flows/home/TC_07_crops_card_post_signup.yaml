@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 name: "TC07 - Crops Card Renders After Sign-Up + Location"
 # priority: P1
 # requires: PHONE_NUMBER,OTP_CODE

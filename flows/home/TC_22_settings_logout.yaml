@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 name: "TC22 - Sign Up + Logout via Settings"
 # priority: P0
 # requires: PHONE_NUMBER,OTP_CODE

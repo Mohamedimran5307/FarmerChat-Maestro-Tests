@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 ---
 # ============================================================
 # COMPOSE A TYPED QUESTION → send

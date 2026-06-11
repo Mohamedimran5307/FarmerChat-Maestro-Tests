@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 name: "TC23 - Save AI Response Shows Confirmation"
 # priority: P2
 # description: Verifies the Save action on an AI answer: sends a typed question, waits for the answer to fully render, taps the action-row Save button, and confirms a 'saved' confirmation toast / banner appears.

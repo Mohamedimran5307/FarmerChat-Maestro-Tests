@@ -1,4 +1,4 @@
-appId: org.digitalgreen.farmer.chat
+appId: ${APP_ID}
 name: "TC08 - Share AI Response via System Chooser"
 # priority: P1
 # description: Verifies the Share action on an AI answer: sends a typed question, waits for the answer to fully render (suggestions visible), taps the action-row Share button, and confirms that the Android share chooser opens.
