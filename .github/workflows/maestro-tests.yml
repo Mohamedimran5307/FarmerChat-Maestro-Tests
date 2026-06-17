@@ -84,8 +84,8 @@ jobs:
 
       - name: Run test suite
         run: |
-          chmod +x scripts/run_all.sh
-          bash scripts/run_all.sh
+          chmod +x run_tests.sh
+          ./run_tests.sh "CI"
 
       - name: Upload Test Report
         if: always()
@@ -106,11 +106,12 @@ jobs:
       - name: Post Summary
         if: always()
         run: |
-          REPORT_DIR=$(ls -td reports/*/ 2>/dev/null | head -1)
-          if [ -n "$REPORT_DIR" ]; then
-            PASSED=$(grep -c 'badge passed' "$REPORT_DIR/report.html" || echo 0)
-            FAILED=$(grep -c 'badge failed' "$REPORT_DIR/report.html" || echo 0)
-            TOTAL=$((PASSED + FAILED))
+          REPORT_JSON=$(ls -t reports/FarmerChat_TestReport_*.json 2>/dev/null | head -1)
+          if [ -n "$REPORT_JSON" ]; then
+            TOTAL=$(grep -oE '"total"[: ]+[0-9]+' "$REPORT_JSON" | grep -oE '[0-9]+' | head -1)
+            PASSED=$(grep -oE '"passed"[: ]+[0-9]+' "$REPORT_JSON" | grep -oE '[0-9]+' | head -1)
+            FAILED=$(grep -oE '"failed"[: ]+[0-9]+' "$REPORT_JSON" | grep -oE '[0-9]+' | head -1)
+            TOTAL=${TOTAL:-0}; PASSED=${PASSED:-0}; FAILED=${FAILED:-0}
             echo "## Maestro Test Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
