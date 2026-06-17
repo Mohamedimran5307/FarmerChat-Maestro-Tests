@@ -22,12 +22,19 @@ tags:
 - extendedWaitUntil:
     visible:
       text: "Listening..."
-    timeout: 10000
+    timeout: 5000
 
 # Dismiss the overlay (cancel button is currently text-matched —
 # replace with an id once the new APK's voice UI is inspected).
-- tapOn: "Cancel"
-
+- extendedWaitUntil:
+    visible:
+        id: "chat_voice_input_send_btn"
+- tapOn:
+    id: "chat_voice_input_send_btn"
+- extendedWaitUntil:
+    visible:
+        id: "chat_retry_btn"
+- back
 - extendedWaitUntil:
     visible:
       id: "home_screen"

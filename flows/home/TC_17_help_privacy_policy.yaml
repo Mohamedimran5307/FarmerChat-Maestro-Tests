@@ -34,7 +34,7 @@ tags:
     timeout: 5000
 
 - tapOn:
-    id: "help_privacy_policy"
+    id: "help_item_privacy"
 
 - extendedWaitUntil:
     visible:

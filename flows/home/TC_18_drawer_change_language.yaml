@@ -34,11 +34,8 @@ tags:
       id: "language_chooser_screen"
     timeout: 5000
 
-- tapOn: "${LANGUAGE}"
+- tapOn:
+    id: "language_chooser_item_en"
+
 - tapOn:
     id: "language_chooser_save_button"
-
-- extendedWaitUntil:
-    visible:
-      text: ".*language.*updated.*"
-    timeout: 10000

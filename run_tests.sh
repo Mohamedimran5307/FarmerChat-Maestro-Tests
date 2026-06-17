@@ -320,34 +320,82 @@ driver_port_listening() {
   adb -s $DEVICE_ID shell "cat /proc/net/tcp" 2>/dev/null | grep -qi "1B59"
 }
 
+# Kill any stale Maestro instrumentation on the device. Safe to call
+# when nothing is running — am force-stop is a no-op on inactive procs.
+kill_stale_maestro_driver() {
+  adb -s $DEVICE_ID shell am force-stop dev.mobile.maestro.test 2>/dev/null || true
+  adb -s $DEVICE_ID shell am force-stop dev.mobile.maestro 2>/dev/null || true
+  # Also clear any host-side adb-shell processes still wired to the
+  # instrumentation — a previous ensure_maestro_driver call may have
+  # left them hanging when its parent shell exited.
+  pkill -f "am instrument.*dev.mobile.maestro" 2>/dev/null || true
+}
+
+# Start the device-side AndroidJUnitRunner truly detached so it
+# survives parent-shell context changes (subshells, function exits,
+# adb kill-server between retries, etc.). The chain matters:
+#   nohup       — immune to SIGHUP when host shell exits
+#   adb shell.. — fires the device-side instrumentation
+#   < /dev/null — no stdin, otherwise adb shell can block on read
+#   > LOG       — capture output to logs/ for debugging
+#   2>&1        — stderr also to LOG
+#   &           — background from the host shell
+#   disown      — remove from job table so even host shell exit can't kill it
+start_maestro_driver_detached() {
+  local log_dir="${RUN_LOGS_DIR:-/tmp}"
+  mkdir -p "$log_dir" 2>/dev/null
+  local log_file="$log_dir/_maestro_driver_$(date +%H%M%S).log"
+  nohup adb -s $DEVICE_ID shell am instrument -w -e debug false \
+    dev.mobile.maestro.test/androidx.test.runner.AndroidJUnitRunner \
+    < /dev/null > "$log_file" 2>&1 &
+  disown $! 2>/dev/null || true
+}
+
 # Ensure the Maestro instrumented driver is running on the device.
 # Symptoms of a missing driver: `maestro test` fails in <5s with
 # "io.grpc.StatusRuntimeException: UNAVAILABLE" caused by
 # "java.io.IOException: Command failed (tcp:7001): closed".
 #
-# The old `wait_for_driver_port` only POLLED for the port — if nothing
-# was ever going to bring the driver up (e.g. the device was rebooted,
-# or `adb kill-server` between retries killed the existing process)
-# we'd silently time out and let maestro fail with the cryptic gRPC
-# error. This function instead BOOTSTRAPS the driver if it isn't
-# already running, then polls.
-#
-# `am instrument -w` would normally block the host shell forever — `&`
-# detaches it, and Android keeps the device-side process alive across
-# the host shell going away because the AndroidJUnitRunner manages its
-# own lifecycle.
+# Strategy:
+#   1. Fast path: if port is already listening, trust it.
+#   2. Standard: kill any stale instrumentation, start fresh detached,
+#      poll up to 60s for the gRPC server to bind tcp:7001.
+#   3. Aggressive fallback: re-forward port, kill stale again, start
+#      fresh, poll another 60s. Catches cases where the port forward
+#      was severed or the first instrumentation crashed silently.
+# Total worst-case time: ~125s. Returns 0 on success, 1 if even the
+# aggressive fallback couldn't bring the driver up (only happens on
+# genuine device-broken / wrong-APK-installed scenarios).
 ensure_maestro_driver() {
   if driver_port_listening; then
     return 0
   fi
-  adb -s $DEVICE_ID shell am instrument -w -e debug false \
-    dev.mobile.maestro.test/androidx.test.runner.AndroidJUnitRunner \
-    >/dev/null 2>&1 &
+
+  # Standard attempt
+  kill_stale_maestro_driver
+  sleep 1
+  start_maestro_driver_detached
   local TRIES=0
-  # Instrumentation startup typically takes 3-8s on this device; give it 30s headroom.
-  while [ $TRIES -lt 15 ]; do
+  while [ $TRIES -lt 30 ]; do
     sleep 2
     if driver_port_listening; then
+      sleep 1                                            # let gRPC fully bind
+      return 0
+    fi
+    TRIES=$((TRIES + 1))
+  done
+
+  # Aggressive fallback — re-forward port + clean restart
+  adb -s $DEVICE_ID forward --remove tcp:7001 2>/dev/null || true
+  adb -s $DEVICE_ID forward tcp:7001 tcp:7001 >/dev/null 2>&1
+  kill_stale_maestro_driver
+  sleep 2
+  start_maestro_driver_detached
+  TRIES=0
+  while [ $TRIES -lt 30 ]; do
+    sleep 2
+    if driver_port_listening; then
+      sleep 1
       return 0
     fi
     TRIES=$((TRIES + 1))

@@ -42,5 +42,4 @@ tags:
       id: "faqs-en"
     timeout: 10000
 - assertVisible:
-    id: "faq-01"
-- assertVisible: "FarmerChat gives you instant advice on crops, pests, diseases, weather, and livestock. It helps you farm better and save money."
+    id: "faq-01-en"

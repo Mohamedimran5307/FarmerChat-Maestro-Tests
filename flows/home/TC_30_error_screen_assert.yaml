@@ -12,7 +12,7 @@ tags:
   - error
   - regression
 ---
-- launchApp
+# - launchApp
 
 - extendedWaitUntil:
     visible:

@@ -20,12 +20,12 @@ tags:
 
 - extendedWaitUntil:
     visible:
-      id: "location_interstitial_skip"
+      id: "appbar_default_right_btn"
     timeout: 10000
 - assertVisible:
-    id: "location_interstitial_skip"
+    id: "appbar_default_right_btn"
 - tapOn:
-    id: "location_interstitial_skip"
+    id: "appbar_default_right_btn"
 
 - back
 - extendedWaitUntil:

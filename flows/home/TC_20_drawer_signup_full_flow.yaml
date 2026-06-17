@@ -72,7 +72,7 @@ tags:
       id: "account_success_screen"
     timeout: 30000
 - assertVisible:
-    text: ".*all set.*"
+    id: "account_success_btn_continue"
 - tapOn:
     id: "account_success_btn_continue"
 - extendedWaitUntil:

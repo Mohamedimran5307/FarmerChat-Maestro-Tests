@@ -33,7 +33,7 @@ tags:
     timeout: 5000
 
 - tapOn:
-    id: "help_terms_of_use"
+    id: "help_item_terms"
 
 - extendedWaitUntil:
     visible:

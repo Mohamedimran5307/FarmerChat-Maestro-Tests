@@ -12,16 +12,19 @@ appId: ${APP_ID}
 # ============================================================
 
 - runFlow: grant_location.yaml
+# After granting location, the weather/location card opens a chat — scroll to its related-questions block
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: "chat_suggested_questions"
+    direction: DOWN
+    timeout: 90000
+    speed: 75   
+- assertVisible:
+    id: "chat_suggested_questions"
 
-# grant_location lands on the location-triggered chat. Close it via the
-# appbar's X (was chat_close_button on the old APK; appbar_logo_left_btn
-# on the new one).
-- extendedWaitUntil:
-    visible:
-      id: "appbar_logo_left_btn"
-    timeout: 10000
-- tapOn:
-    id: "appbar_logo_left_btn"
+# grant_location lands on the location-triggered chat. Close it by pressing the back button.
+- back
 - extendedWaitUntil:
     visible:
       id: "home_screen"

@@ -67,6 +67,13 @@ tags:
     commands:
       - tapOn:
           text: ".*OK.*"
+- runFlow:
+    when:
+      visible:
+          id: "done_button_bg"
+    commands: 
+        - tapOn:
+            id: "done_button_bg"
 
 # Back in FarmerChat with the photo attached — send it
 - extendedWaitUntil:
