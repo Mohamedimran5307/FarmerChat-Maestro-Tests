@@ -12,7 +12,7 @@ Maestro_automation_FarmerChat_End_to_End_Flow/
 │   ├── env.local.example.yaml    # Template for secrets — copy to env.local.yaml
 │   └── env.local.yaml            # Gitignored secrets (PHONE_NUMBER, OTP_CODE); overrides env.yaml
 ├── flows/
-│   ├── home/                     # The live suite: TC_NN_*.yaml (numbering is non-contiguous)
+│   ├── home/                     # The live suite: TC_NN_*.yaml (sequential TC_01–TC_39)
 │   └── onboarding/               # Legacy flows — NOT run by the runners
 ├── helpers/                      # Reusable sub-flows invoked via runFlow:
 │   ├── launch_app.yaml
@@ -104,22 +104,22 @@ tags:
 ## Test coverage
 
 The live suite lives entirely in `flows/home/`. Tests are tagged by functional area; every test
-also carries `regression`. Numbering is non-contiguous (e.g. TC28 was removed).
+also carries `regression`. Tests are numbered sequentially **TC01–TC39**.
 
 | Area              | Tags                | Example TCs                                  |
 |-------------------|---------------------|----------------------------------------------|
 | Home feed         | `home`, `onboarding`| TC01, TC03–05, TC07, TC19, TC24              |
-| Chat & AI         | `chat`              | TC02, TC06, TC08–09, TC23, TC25, TC38        |
+| Chat & AI         | `chat`              | TC02, TC06, TC08–09, TC23, TC25, TC37        |
 | Settings          | `settings`          | TC10–13, TC22                                |
-| Sign-up / Auth    | `auth`              | TC04, TC07, TC12–14, TC20–22, TC37           |
-| Navigation/Drawer | `navigation`        | TC14, TC18, TC21, TC39                       |
+| Sign-up / Auth    | `auth`              | TC04, TC07, TC12–14, TC20–22, TC36           |
+| Navigation/Drawer | `navigation`        | TC14, TC18, TC21, TC38                       |
 | Help              | `help`              | TC15–17                                      |
-| Legal (1st launch)| `legal`             | TC26–27, TC40                                |
-| Error recovery    | `error`             | TC30, TC32–37                                |
-| Camera            | `camera`            | TC29                                         |
+| Legal (1st launch)| `legal`             | TC26–27, TC39                                |
+| Error recovery    | `error`             | TC29–TC36                                    |
+| Camera            | `camera`            | TC28                                         |
 
 > Some error / chat-history scenarios are split into ordered `_setup` → `_assert` → `_recovery`
-> triplets (e.g. TC34/TC32/TC33, TC37/TC35/TC36) and have dedicated drivers in `scripts/`.
+> triplets (setup → assert → recovery): TC33/TC31/TC32 (chat error) and TC36/TC34/TC35 (chat history).
 
 ## Reports
 

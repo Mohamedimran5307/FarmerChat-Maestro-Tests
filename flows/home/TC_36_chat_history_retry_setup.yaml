@@ -1,15 +1,15 @@
 appId: ${APP_ID}
-name: "TC37 - Seed Chat History (Retry-Test Setup)"
+name: "TC36 - Seed Chat History (Retry-Test Setup)"
 # priority: P2
 # requires: PHONE_NUMBER,OTP_CODE
-# description: Setup step for the TC35 chat-history-retry sequence: signs up while online, asks a 'wheat' question to seed chat history, and returns to the home screen so the operator can disable network before running the offline-history-load test.
+# description: Setup step for the TC36 chat-history-retry sequence: signs up while online, asks a 'wheat' question to seed chat history, and returns to the home screen so the operator can disable network before running the offline-history-load test.
 # Precondition: device ONLINE while this runs. Sequence:
 #   1) Run THIS test (signs up, seeds history, lands on home_screen).
 #   2) Disable network.
-#   3) Run TC35_chat_history_retry_assert (verifies global error
+#   3) Run TC_34_chat_history_retry_assert (verifies global error
 #      appears when opening Chat History).
 #   4) Re-enable network.
-#   5) Run TC35_chat_history_retry_recovery (verifies retry loads history).
+#   5) Run TC_35_chat_history_retry_recovery (verifies retry loads history).
 tags:
   - chat
   - error

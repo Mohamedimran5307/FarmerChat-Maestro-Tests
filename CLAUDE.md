@@ -10,9 +10,9 @@ YAML flows, reusable sub-flows, and bash runners that orchestrate Maestro + adb 
 
 ## Test layout & conventions
 
-- **`flows/home/TC_NN_*.yaml`** — the live test suite. All runners discover tests by globbing
-  `flows/home/TC_[0-9]*_*.yaml`. Numbering is **not contiguous** (e.g. TC_28 was deleted) — never
-  assume the next number is free; glob to check.
+- **`flows/home/TC_NN_*.yaml`** — the live test suite, numbered sequentially **TC_01–TC_39**. All
+  runners discover tests by globbing `flows/home/TC_[0-9]*_*.yaml`, so adding/removing a flow doesn't
+  require touching the runner — but if you delete one, renumber the rest to keep the sequence gapless.
 - **`flows/onboarding/`** — legacy, *not* picked up by the runners. Ignore unless explicitly asked.
 - Filename `TC_05_…` maps to CLI/report id `TC05` (underscore dropped). The runner derives the id
   from the leading digits of the filename.

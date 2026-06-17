@@ -1,5 +1,5 @@
 appId: ${APP_ID}
-name: "TC29 - Photo Question from Camera → AI Response"
+name: "TC28 - Photo Question from Camera → AI Response"
 # priority: P2
 # description: Verifies the photo-based chat flow via the device camera: taps the Photo input button, picks the Camera option, captures and accepts a photo, sends it as a chat question, and confirms an AI answer renders with its suggested-questions block.
 # TODO: This test depends on the device's native camera UI
