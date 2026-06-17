@@ -295,6 +295,40 @@ ensure_maestro_installed
 echo ""
 
 # ─────────────────────────────────────────────────────────────────────────────
+# HARDEN DEVICE AGAINST DRIVER KILLS  (the real fix for tcp:7001 / UNAVAILABLE)
+# ─────────────────────────────────────────────────────────────────────────────
+# On aggressive OEM ROMs (MIUI / HyperOS, ColorOS, OneUI) the instrumented
+# Maestro driver (dev.mobile.maestro[.test]) is battery-optimized, Doze-killed,
+# or app-standby'd shortly after `am instrument` starts — or mid-test. The
+# channel then drops with "io.grpc.StatusRuntimeException: UNAVAILABLE" caused
+# by "Command failed (tcp:7001): closed". Restarting after the fact (below)
+# only papers over it. The durable fix is to stop the OS from killing the
+# driver at all: exempt both packages from Doze / standby / background limits,
+# disable Doze for the session, and keep the device awake.
+harden_device_for_driver() {
+  echo -e "${BLUE}Hardening device so the Maestro driver can't be killed...${NC}"
+  for pkg in dev.mobile.maestro dev.mobile.maestro.test "$APP_ID"; do
+    adb -s $DEVICE_ID shell dumpsys deviceidle whitelist +$pkg            >/dev/null 2>&1 || true
+    adb -s $DEVICE_ID shell cmd appops set $pkg RUN_IN_BACKGROUND allow   >/dev/null 2>&1 || true
+    adb -s $DEVICE_ID shell cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow >/dev/null 2>&1 || true
+    adb -s $DEVICE_ID shell am set-standby-bucket $pkg active             >/dev/null 2>&1 || true
+    # MIUI/HyperOS autostart op (no-op / error elsewhere — hence || true).
+    adb -s $DEVICE_ID shell cmd appops set $pkg AUTO_START allow          >/dev/null 2>&1 || true
+  done
+  # Disable Doze + app-standby globally for the session so nothing idles the
+  # driver out between/within long AI-response waits.
+  adb -s $DEVICE_ID shell dumpsys deviceidle disable                      >/dev/null 2>&1 || true
+  adb -s $DEVICE_ID shell settings put global device_idle_constants ""    >/dev/null 2>&1 || true
+  # Keep CPU/screen alive while plugged in (3 = AC | USB) and disable the
+  # adb-connection auto-suspend that can sever tcp:7001 on USB power dips.
+  adb -s $DEVICE_ID shell settings put global stay_on_while_plugged_in 3  >/dev/null 2>&1 || true
+  adb -s $DEVICE_ID shell svc power stayon true                           >/dev/null 2>&1 || true
+  echo -e "  ${GREEN}✓ Driver packages exempted from battery/Doze/standby kills${NC}"
+}
+harden_device_for_driver
+echo ""
+
+# ─────────────────────────────────────────────────────────────────────────────
 # DISMISS SYSTEM POPUP FUNCTION
 # ─────────────────────────────────────────────────────────────────────────────
 dismiss_system_popup() {
@@ -457,6 +491,13 @@ setup_test() {
   adb -s $DEVICE_ID shell svc power stayon true 2>/dev/null || true
   adb -s $DEVICE_ID shell input keyevent KEYCODE_WAKEUP 2>/dev/null || true
   adb -s $DEVICE_ID shell input keyevent 82 2>/dev/null || true
+
+  # Re-apply the anti-kill exemptions before EVERY attempt — HyperOS/MIUI can
+  # silently re-Doze or drop a package off the whitelist between tests, which is
+  # what lets the driver die mid-run (tcp:7001 closed). Cheap to refresh.
+  adb -s $DEVICE_ID shell dumpsys deviceidle disable >/dev/null 2>&1 || true
+  adb -s $DEVICE_ID shell dumpsys deviceidle whitelist +dev.mobile.maestro >/dev/null 2>&1 || true
+  adb -s $DEVICE_ID shell dumpsys deviceidle whitelist +dev.mobile.maestro.test >/dev/null 2>&1 || true
 
   adb -s $DEVICE_ID shell am force-stop $APP_ID 2>/dev/null
   adb -s $DEVICE_ID shell "run-as $APP_ID sh -c 'rm -rf shared_prefs/* files/* cache/* databases/*'" 2>/dev/null || true
