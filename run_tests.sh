@@ -139,6 +139,34 @@ fi
 echo -e "Device ID: ${YELLOW}$DEVICE_ID${NC}"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CLEANUP TRAP
+# A cancelled CI job sends SIGINT/SIGTERM to this script. Without a trap, the
+# child `maestro` JVM and the detached on-device instrumentation get orphaned
+# (reparented to launchd/init) and keep driving the attached device long after
+# the job is "cancelled" — exactly the zombie-run failure mode. Reap the whole
+# tree here. Also runs on normal EXIT (harmless: the suite is done by then).
+# ─────────────────────────────────────────────────────────────────────────────
+CLEANED_UP=0
+cleanup_on_exit() {
+  [ "$CLEANED_UP" = "1" ] && return
+  CLEANED_UP=1
+  # Host side: kill the maestro client JVM(s) and any backgrounded children
+  # spawned by this script (popup-dismiss loop, screenrecord puller, etc.).
+  pkill -9 -f 'maestro.cli.AppKt' 2>/dev/null || true
+  pkill -P $$ 2>/dev/null || true
+  # Device side: stop the detached AndroidJUnitRunner driver + any recording.
+  if [ -n "${DEVICE_ID:-}" ]; then
+    adb -s "$DEVICE_ID" shell am force-stop dev.mobile.maestro.test 2>/dev/null || true
+    adb -s "$DEVICE_ID" shell am force-stop dev.mobile.maestro 2>/dev/null || true
+    adb -s "$DEVICE_ID" shell pkill -SIGINT screenrecord 2>/dev/null || true
+  fi
+  pkill -f "am instrument.*dev.mobile.maestro" 2>/dev/null || true
+}
+trap cleanup_on_exit EXIT
+trap 'cleanup_on_exit; exit 130' INT
+trap 'cleanup_on_exit; exit 143' TERM
+
+# ─────────────────────────────────────────────────────────────────────────────
 # COLLECT DEVICE INFORMATION
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}Collecting device information...${NC}"

@@ -87,6 +87,21 @@ jobs:
           chmod +x run_tests.sh
           ./run_tests.sh "CI"
 
+      # Backstop: even with run_tests.sh's own trap, a hard cancel (SIGKILL)
+      # can orphan the maestro JVM / on-device driver so it keeps driving the
+      # attached device outside any job. always() runs this even on cancel.
+      - name: Kill stray Maestro processes
+        if: always()
+        run: |
+          pkill -9 -f 'maestro.cli.AppKt' 2>/dev/null || true
+          pkill -f 'am instrument.*dev.mobile.maestro' 2>/dev/null || true
+          for d in $(adb devices | awk 'NR>1 && $2=="device"{print $1}'); do
+            adb -s "$d" shell am force-stop dev.mobile.maestro.test 2>/dev/null || true
+            adb -s "$d" shell am force-stop dev.mobile.maestro 2>/dev/null || true
+            adb -s "$d" shell pkill -SIGINT screenrecord 2>/dev/null || true
+          done
+          echo "Stray Maestro cleanup done."
+
       - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
