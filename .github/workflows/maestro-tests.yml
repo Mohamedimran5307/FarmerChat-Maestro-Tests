@@ -87,14 +87,18 @@ jobs:
           chmod +x run_tests.sh
           ./run_tests.sh "CI"
 
-      # Backstop: even with run_tests.sh's own trap, a hard cancel (SIGKILL)
-      # can orphan the maestro JVM / on-device driver so it keeps driving the
-      # attached device outside any job. always() runs this even on cancel.
+      # Backstop: on cancel the runner can orphan run_tests.sh (reparented to
+      # init) without signalling it, so its trap never fires and it keeps
+      # looping — respawning maestro on the attached device. Kill the SPAWNER
+      # (run_tests.sh) first, then its maestro child + on-device driver.
+      # always() runs this even when the job is cancelled.
       - name: Kill stray Maestro processes
         if: always()
         run: |
+          pkill -9 -f 'run_tests.sh' 2>/dev/null || true
+          sleep 1
           pkill -9 -f 'maestro.cli.AppKt' 2>/dev/null || true
-          pkill -f 'am instrument.*dev.mobile.maestro' 2>/dev/null || true
+          pkill -9 -f 'am instrument.*dev.mobile.maestro' 2>/dev/null || true
           for d in $(adb devices | awk 'NR>1 && $2=="device"{print $1}'); do
             adb -s "$d" shell am force-stop dev.mobile.maestro.test 2>/dev/null || true
             adb -s "$d" shell am force-stop dev.mobile.maestro 2>/dev/null || true

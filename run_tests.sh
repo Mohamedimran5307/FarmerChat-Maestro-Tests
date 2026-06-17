@@ -166,6 +166,21 @@ trap cleanup_on_exit EXIT
 trap 'cleanup_on_exit; exit 130' INT
 trap 'cleanup_on_exit; exit 143' TERM
 
+# When a CI job is cancelled, the runner often kills this script's PARENT
+# without signalling us — so the INT/TERM traps never fire and we get
+# reparented to init (PPID 1), then keep looping over tests and respawning
+# maestro on whatever device is attached. Detect that reparenting and bail;
+# the EXIT trap above then reaps maestro + the on-device driver. Called at the
+# top of every attempt so a cancelled run dies within one test, not 40.
+orphan_guard() {
+  local ppid
+  ppid=$(ps -o ppid= -p $$ 2>/dev/null | tr -d ' ')
+  if [ "$ppid" = "1" ]; then
+    echo -e "${RED}Parent process gone (orphaned, PPID=1) — likely a cancelled CI job. Aborting.${NC}" >&3 2>/dev/null || true
+    exit 143
+  fi
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # COLLECT DEVICE INFORMATION
 # ─────────────────────────────────────────────────────────────────────────────
@@ -814,6 +829,7 @@ for test_case in "${TEST_CASES[@]}"; do
   RETRY_INFO=""
   
   while [ $ATTEMPT -le $((MAX_RETRIES + 1)) ] && [ "$TEST_PASSED" = "false" ]; do
+    orphan_guard
     echo -ne "\r"
     printf "${YELLOW}[%d/%d]${NC} %-35s " "$TOTAL" "$TOTAL_COUNT" "$TC_NAME"
     if [ $ATTEMPT -eq 1 ]; then
