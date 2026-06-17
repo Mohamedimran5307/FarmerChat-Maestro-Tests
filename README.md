@@ -24,7 +24,6 @@ Maestro_automation_FarmerChat_End_to_End_Flow/
 │   └── navigate_to_*.yaml
 ├── run_tests.sh                  # The test runner (driver mgmt, retry, video, reports) — used locally and in CI
 ├── scripts/
-│   ├── run_parallel_genymotion.sh / setup_genymotion.sh   # Genymotion provisioning / parallel runs
 │   ├── run_failed.sh             # Re-run only previously failed TCs
 │   └── run_tc3{3,4,5}_*.sh       # Ordered drivers for the multi-flow error / chat-history scenarios
 ├── device-farm/                  # Run the suite on a physical USB device

@@ -80,8 +80,6 @@ maestro --device emulator-5554 test flows/home/TC_01_weather_widget_location.yam
 
 ### Auxiliary scripts (`scripts/`)
 
-- `scripts/setup_genymotion.sh` / `run_parallel_genymotion.sh` — Genymotion device provisioning /
-  parallel execution.
 - `scripts/run_failed.sh` — re-run only the TCs that failed in the last run.
 - `scripts/run_tc3{3,4,5}_*.sh` — bespoke drivers for the multi-flow error/chat-history scenarios
   (these tests come in `_setup` / `_assert` / `_recovery` triplets that must run in order — plain
