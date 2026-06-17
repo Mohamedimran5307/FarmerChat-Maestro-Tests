@@ -81,9 +81,11 @@ maestro --device emulator-5554 test flows/home/TC_01_weather_widget_location.yam
 ### Auxiliary scripts (`scripts/`)
 
 - `scripts/run_failed.sh` — re-run only the TCs that failed in the last run.
-- `scripts/run_tc3{3,4,5}_*.sh` — bespoke drivers for the multi-flow error/chat-history scenarios
-  (these tests come in `_setup` / `_assert` / `_recovery` triplets that must run in order — plain
-  `run_tests.sh` iterates them in filename order, which is *not* the required execution order).
+- **Offline-error triplets need manual ordering.** TC_33/TC_31/TC_32 (chat error) and
+  TC_36/TC_34/TC_35 (chat history) are `_setup` / `_assert` / `_recovery` sequences that require
+  toggling device network between steps (see each flow's header comment). `run_tests.sh` iterates
+  flows in filename order, which is *not* their execution order — run them by hand when validating
+  the offline paths.
 - **Note on `device-farm/`:** it is a self-contained physical-device harness with its **own** copies
   of `run_tests.sh` / `tc_metadata.sh` / `generate_report.sh` under `device-farm/scripts/`. Its docs
   still describe an older 40-TC mapping — verify against the actual `flows/home/` glob, not those.

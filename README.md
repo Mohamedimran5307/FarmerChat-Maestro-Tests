@@ -25,7 +25,7 @@ Maestro_automation_FarmerChat_End_to_End_Flow/
 ├── run_tests.sh                  # The test runner (driver mgmt, retry, video, reports) — used locally and in CI
 ├── scripts/
 │   ├── run_failed.sh             # Re-run only previously failed TCs
-│   └── run_tc3{3,4,5}_*.sh       # Ordered drivers for the multi-flow error / chat-history scenarios
+│   └── report_style.css          # HTML report styling
 ├── device-farm/                  # Run the suite on a physical USB device
 ├── app.apk                       # App under test (tracked via git LFS)
 ├── reports/                      # Generated HTML/JSON reports (gitignored)
