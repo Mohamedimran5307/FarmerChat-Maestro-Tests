@@ -1,3 +1,6 @@
+# Local secrets (PHONE_NUMBER / OTP_CODE etc.) — copy from env.local.example.yaml
+config/env.local.yaml
+
 # Test reports (generated at runtime)
 reports/
 
