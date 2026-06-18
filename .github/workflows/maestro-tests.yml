@@ -82,10 +82,34 @@ jobs:
             echo "Maestro already installed: $(maestro --version)"
           fi
 
+      # Write the gitignored secrets file from repo Secrets so sign-up tests
+      # (# requires: PHONE_NUMBER,OTP_CODE) can run. If the secrets aren't set,
+      # the file isn't written and those tests skip cleanly.
+      - name: Write local secrets
+        env:
+          PHONE_NUMBER: ${{ secrets.PHONE_NUMBER }}
+          NEW_PHONE_NUMBER: ${{ secrets.NEW_PHONE_NUMBER }}
+          OTP_CODE: ${{ secrets.OTP_CODE }}
+        run: |
+          if [ -n "$PHONE_NUMBER" ] && [ -n "$OTP_CODE" ]; then
+            {
+              echo "PHONE_NUMBER: $PHONE_NUMBER"
+              echo "NEW_PHONE_NUMBER: ${NEW_PHONE_NUMBER:-$PHONE_NUMBER}"
+              echo "OTP_CODE: $OTP_CODE"
+            } > config/env.local.yaml
+            echo "Wrote config/env.local.yaml from repo secrets — sign-up tests will run."
+          else
+            echo "PHONE_NUMBER/OTP_CODE secrets not set — sign-up tests will skip."
+          fi
+
       - name: Run test suite
         run: |
           chmod +x run_tests.sh
           ./run_tests.sh "CI"
+
+      - name: Remove local secrets
+        if: always()
+        run: rm -f config/env.local.yaml
 
       # Backstop: on cancel the runner can orphan run_tests.sh (reparented to
       # init) without signalling it, so its trap never fires and it keeps
