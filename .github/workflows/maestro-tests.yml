@@ -130,13 +130,28 @@ jobs:
           done
           echo "Stray Maestro cleanup done."
 
-      - name: Upload Test Report
+      # Focused artifact: just the JSON + HTML summary reports, easy to grab.
+      - name: Upload JSON + HTML reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-test-report-${{ github.run_number }}
+          name: FarmerChat-report-${{ github.run_number }}
+          path: |
+            reports/FarmerChat_TestReport_*.json
+            reports/FarmerChat_TestReport_*.html
+          retention-days: 30
+          if-no-files-found: warn
+
+      # Full bundle: the same reports plus per-test logs, screenshots and videos
+      # (the HTML links to these, so download this one to view media inline).
+      - name: Upload full report bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FarmerChat-report-full-${{ github.run_number }}
           path: reports/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload Maestro Debug Logs
         if: failure()
@@ -168,4 +183,14 @@ jobs:
             else
               echo "> $FAILED test(s) failed. Check the uploaded report for details." >> $GITHUB_STEP_SUMMARY
             fi
+            REPORT_HTML=$(ls -t reports/FarmerChat_TestReport_*.html 2>/dev/null | head -1)
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Reports** (download from the run's *Artifacts* section):" >> $GITHUB_STEP_SUMMARY
+            echo "- JSON: \`$(basename "$REPORT_JSON")\`" >> $GITHUB_STEP_SUMMARY
+            echo "- HTML: \`$(basename "${REPORT_HTML:-n/a}")\`" >> $GITHUB_STEP_SUMMARY
+            echo "  - \`FarmerChat-report-${{ github.run_number }}\` — JSON + HTML only" >> $GITHUB_STEP_SUMMARY
+            echo "  - \`FarmerChat-report-full-${{ github.run_number }}\` — reports + logs/screenshots/videos" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Maestro Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "> No report generated (run may have failed before tests ran)." >> $GITHUB_STEP_SUMMARY
           fi
