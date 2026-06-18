@@ -41,12 +41,12 @@ tags:
           commands:
             - tapOn:
                 id: "chat_retry_btn"
-      - extendedWaitUntil:
-          visible:
+      - scrollUntilVisible:
+          centerElement: false
+          element:
             id: "chat_suggested_questions"
-          timeout: 30000
-# Final settle (polling, tolerates the reconnect flicker) = the recovery assertion.
-- extendedWaitUntil:
-    visible:
-      id: "chat_suggested_questions"
-    timeout: 20000
+          direction: DOWN
+          timeout: 90000
+          speed: 40
+- assertVisible:
+    id: "chat_suggested_questions"

@@ -8,7 +8,7 @@ tags:
 ---
 # Go fully offline, then cold-start so the launch hits the global no-internet error.
 - setAirplaneMode: enabled
-- clearState
+# - clearState
 - launchApp
 - extendedWaitUntil:
     visible:

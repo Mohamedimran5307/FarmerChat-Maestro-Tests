@@ -12,7 +12,7 @@ Maestro_automation_FarmerChat_End_to_End_Flow/
 │   ├── env.local.example.yaml    # Template for secrets — copy to env.local.yaml
 │   └── env.local.yaml            # Gitignored secrets (PHONE_NUMBER, OTP_CODE); overrides env.yaml
 ├── flows/
-│   ├── home/                     # The live suite: TC_NN_*.yaml (sequential TC_01–TC_39)
+│   ├── home/                     # The live suite: TC_NN_*.yaml (sequential TC_01–TC_35)
 │   └── onboarding/               # Legacy flows — NOT run by the runners
 ├── helpers/                      # Reusable sub-flows invoked via runFlow:
 │   ├── launch_app.yaml
@@ -104,22 +104,22 @@ tags:
 ## Test coverage
 
 The live suite lives entirely in `flows/home/`. Tests are tagged by functional area; every test
-also carries `regression`. Tests are numbered sequentially **TC01–TC39**.
+also carries `regression`. Tests are numbered sequentially **TC01–TC35**.
 
 | Area              | Tags                | Example TCs                                  |
 |-------------------|---------------------|----------------------------------------------|
 | Home feed         | `home`, `onboarding`| TC01, TC03–05, TC07, TC19, TC24              |
-| Chat & AI         | `chat`              | TC02, TC06, TC08–09, TC23, TC25, TC37        |
+| Chat & AI         | `chat`              | TC02, TC06, TC08–09, TC23, TC25, TC33        |
 | Settings          | `settings`          | TC10–13, TC22                                |
-| Sign-up / Auth    | `auth`              | TC04, TC07, TC12–14, TC20–22, TC36           |
-| Navigation/Drawer | `navigation`        | TC14, TC18, TC21, TC38                       |
+| Sign-up / Auth    | `auth`              | TC04, TC07, TC12–14, TC20–22, TC32           |
+| Navigation/Drawer | `navigation`        | TC14, TC18, TC21, TC34                       |
 | Help              | `help`              | TC15–17                                      |
-| Legal (1st launch)| `legal`             | TC26–27, TC39                                |
-| Error recovery    | `error`             | TC29–TC36                                    |
+| Legal (1st launch)| `legal`             | TC26–27, TC35                                |
+| Error recovery    | `error`             | TC29–TC32                                    |
 | Camera            | `camera`            | TC28                                         |
 
-> Some error / chat-history scenarios are split into ordered `_setup` → `_assert` → `_recovery`
-> triplets (setup → assert → recovery): TC33/TC31/TC32 (chat error) and TC36/TC34/TC35 (chat history).
+> The offline-network tests (TC29–TC32) are self-contained: each toggles the radio in-flow via
+> `setAirplaneMode` and drives its own retry/recovery — no manual network toggling, no required order.
 
 ## Reports
 

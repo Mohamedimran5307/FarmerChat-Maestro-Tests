@@ -48,10 +48,10 @@ tags:
 # Tap the "Terms of Use" link once it animates in (the legal-text block
 # appears after language selection). text-matcher used because the
 # language_terms_link testTag from the old APK doesn't exist here.
-- extendedWaitUntil:
-    visible:
-      text: "Terms of Use"
-    timeout: 15000
+- assertVisible:
+    id: "language_legal_text"
+- assertVisible:
+    id: "language_terms_btn"
 - tapOn:
     id: "language_terms_btn"
 

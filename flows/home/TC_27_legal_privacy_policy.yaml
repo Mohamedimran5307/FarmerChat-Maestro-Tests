@@ -38,10 +38,10 @@ tags:
 - tapOn:
     id: "language_item_${LANGUAGE_CODE}"
 
-- extendedWaitUntil:
-    visible:
-      text: "Privacy Policy"
-    timeout: 15000
+- assertVisible:
+    id: "language_legal_text"
+- assertVisible:
+    id: "language_privacy_btn"
 - tapOn:
     id: "language_privacy_btn"
 
