@@ -39,7 +39,7 @@ jobs:
           git lfs install
           git lfs pull
 
-      - name: Ensure emulator is running
+      - name: Ensure a test device (physical preferred)
         run: |
           set -e
           # Resolve the SDK; bare `emulator` on PATH resolves to a wrong relative
@@ -50,6 +50,16 @@ jobs:
           EMU="$ANDROID_HOME/emulator/emulator"
           ADB="$ANDROID_HOME/platform-tools/adb"
           echo "ANDROID_HOME=$ANDROID_HOME"
+
+          # Prefer a physical device if one is attached (id NOT starting with
+          # "emulator-"). Only spin up an emulator when none is present.
+          PHYS="$("$ADB" devices | awk 'NR>1 && $2=="device" && $1 !~ /^emulator-/ {print $1; exit}')"
+          if [ -n "$PHYS" ]; then
+            echo "Physical device attached ($PHYS) — using it; skipping emulator."
+            echo "MAESTRO_DEVICE=$PHYS" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "No physical device attached — bringing up an emulator."
 
           if "$ADB" devices | grep -q "emulator-5554"; then
             echo "Emulator already running."
@@ -81,8 +91,7 @@ jobs:
             echo "Emulator booted."
           fi
 
-          # Pin the suite to the emulator so run_tests.sh doesn't grab a physical
-          # device that may also be attached to this self-hosted runner.
+          # Reached only when no physical device was attached — target the emulator.
           echo "MAESTRO_DEVICE=emulator-5554" >> "$GITHUB_ENV"
 
       - name: Verify connectivity
