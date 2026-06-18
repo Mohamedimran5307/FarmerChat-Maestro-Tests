@@ -41,29 +41,63 @@ jobs:
 
       - name: Ensure emulator is running
         run: |
-          if ! adb devices | grep -q "emulator-5554"; then
-            echo "Starting emulator..."
-            emulator -avd Pixel_7_Pro -no-audio -no-boot-anim &
-            adb wait-for-device
-            adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 2; done;'
-            sleep 10
-          else
+          set -e
+          # Resolve the SDK; bare `emulator` on PATH resolves to a wrong relative
+          # path and fails with "Qt library not found" — always use the absolute
+          # $ANDROID_HOME/emulator/emulator, which locates its own bundled libs.
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          EMU="$ANDROID_HOME/emulator/emulator"
+          ADB="$ANDROID_HOME/platform-tools/adb"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+          if "$ADB" devices | grep -q "emulator-5554"; then
             echo "Emulator already running."
+          else
+            # Reuse an existing AVD if present, else create a headless one.
+            AVD="$("$EMU" -list-avds 2>/dev/null | head -1 || true)"
+            if [ -z "$AVD" ]; then
+              AVD="ci_emulator"
+              IMG="system-images;android-34;google_apis;arm64-v8a"
+              SDKMGR="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+              AVDMGR="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
+              echo "No AVD found — creating '$AVD'"
+              yes | "$SDKMGR" "platform-tools" "emulator" "$IMG" >/dev/null
+              echo "no" | "$AVDMGR" create avd -n "$AVD" -k "$IMG" --device "pixel_7" --force
+            fi
+            echo "Booting AVD: $AVD"
+            # Launch from the emulator dir so Qt/qemu libs resolve; headless flags.
+            ( cd "$ANDROID_HOME/emulator" && \
+              ./emulator -avd "$AVD" -no-window -no-audio -no-boot-anim -no-snapshot \
+                -gpu swiftshader_indirect -netdelay none -netspeed full \
+                >/tmp/emulator_boot.log 2>&1 & )
+            "$ADB" -s emulator-5554 wait-for-device
+            echo "Waiting for boot to complete..."
+            for i in $(seq 1 60); do
+              [ "$("$ADB" -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && break
+              sleep 5
+            done
+            "$ADB" -s emulator-5554 shell input keyevent 82 >/dev/null 2>&1 || true
+            echo "Emulator booted."
           fi
+
+          # Pin the suite to the emulator so run_tests.sh doesn't grab a physical
+          # device that may also be attached to this self-hosted runner.
+          echo "MAESTRO_DEVICE=emulator-5554" >> "$GITHUB_ENV"
 
       - name: Verify connectivity
         run: |
-          adb shell "ping -c 2 -W 3 8.8.8.8" || echo "WARNING: ping failed"
+          adb -s "$MAESTRO_DEVICE" shell "ping -c 2 -W 3 8.8.8.8" || echo "WARNING: ping failed"
           echo "Connectivity check done."
 
       - name: Install APK
         run: |
-          if adb shell pm list packages | grep -q "${{ env.APP_ID }}"; then
+          if adb -s "$MAESTRO_DEVICE" shell pm list packages | grep -q "${{ env.APP_ID }}"; then
             echo "App already installed, reinstalling from repo..."
           fi
-          adb install -r app.apk || {
+          adb -s "$MAESTRO_DEVICE" install -r app.apk || {
             echo "APK install from repo failed, checking if app exists on device..."
-            if adb shell pm list packages | grep -q "${{ env.APP_ID }}"; then
+            if adb -s "$MAESTRO_DEVICE" shell pm list packages | grep -q "${{ env.APP_ID }}"; then
               echo "App already installed on device, continuing."
             else
               echo "APK install failed and app not on device!"
@@ -73,16 +107,17 @@ jobs:
 
       - name: Configure device
         run: |
-          adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
-          adb shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
-          adb shell pm grant ${{ env.APP_ID }} android.permission.CAMERA 2>/dev/null || true
-          adb shell pm grant ${{ env.APP_ID }} android.permission.RECORD_AUDIO 2>/dev/null || true
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-          adb shell settings put secure stylus_handwriting_enabled 0 2>/dev/null || true
-          adb shell settings put secure show_stylus_handwriting_intro 0 2>/dev/null || true
-          adb forward tcp:7001 tcp:7001
+          D="$MAESTRO_DEVICE"
+          adb -s "$D" shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
+          adb -s "$D" shell pm grant ${{ env.APP_ID }} android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
+          adb -s "$D" shell pm grant ${{ env.APP_ID }} android.permission.CAMERA 2>/dev/null || true
+          adb -s "$D" shell pm grant ${{ env.APP_ID }} android.permission.RECORD_AUDIO 2>/dev/null || true
+          adb -s "$D" shell settings put global window_animation_scale 0
+          adb -s "$D" shell settings put global transition_animation_scale 0
+          adb -s "$D" shell settings put global animator_duration_scale 0
+          adb -s "$D" shell settings put secure stylus_handwriting_enabled 0 2>/dev/null || true
+          adb -s "$D" shell settings put secure show_stylus_handwriting_intro 0 2>/dev/null || true
+          adb -s "$D" forward tcp:7001 tcp:7001
 
       - name: Ensure Maestro CLI
         run: |

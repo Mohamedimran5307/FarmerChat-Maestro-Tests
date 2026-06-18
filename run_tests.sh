@@ -128,7 +128,13 @@ echo ""
 # ─────────────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}Detecting connected device...${NC}"
 
-DEVICE_ID=$(adb devices | grep -v 'List' | grep 'device$' | head -1 | awk '{print $1}')
+# Honor an explicit device id (set by CI to pin the emulator, or locally to
+# pick one when several are attached). Falls back to the first online device.
+if [ -n "${MAESTRO_DEVICE:-}" ]; then
+  DEVICE_ID="$MAESTRO_DEVICE"
+else
+  DEVICE_ID=$(adb devices | grep -v 'List' | grep 'device$' | head -1 | awk '{print $1}')
+fi
 
 if [ -z "$DEVICE_ID" ]; then
   echo -e "${RED}ERROR: No Android device connected!${NC}"
