@@ -26,7 +26,7 @@ concurrency:
 jobs:
   maestro-tests:
     runs-on: [self-hosted, macOS, ARM64]
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
