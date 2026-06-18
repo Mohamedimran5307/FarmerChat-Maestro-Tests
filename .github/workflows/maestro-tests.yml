@@ -12,6 +12,17 @@ on:
 env:
   APP_ID: org.digitalgreen.farmer.chat
 
+# Needed for the publish-report job to deploy the HTML report to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer run supersede an in-flight Pages deploy rather than fail it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   maestro-tests:
     runs-on: [self-hosted, macOS, ARM64]
@@ -194,3 +205,41 @@ jobs:
             echo "## Maestro Test Results" >> $GITHUB_STEP_SUMMARY
             echo "> No report generated (run may have failed before tests ran)." >> $GITHUB_STEP_SUMMARY
           fi
+
+  # Publish the HTML report to GitHub Pages → a clickable URL per run. Runs on a
+  # GitHub-hosted runner (Pages tooling + doesn't tie up the self-hosted Mac),
+  # consuming the report bundle uploaded by maestro-tests.
+  publish-report:
+    needs: maestro-tests
+    if: always()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Download report bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: FarmerChat-report-full-${{ github.run_number }}
+          path: site
+        continue-on-error: true
+
+      - name: Prepare site (latest report as index.html)
+        run: |
+          mkdir -p site
+          latest=$(ls -t site/FarmerChat_TestReport_*.html 2>/dev/null | head -1)
+          if [ -n "$latest" ]; then
+            cp "$latest" site/index.html
+            echo "Published $(basename "$latest") as index.html"
+          else
+            echo "<h1>No FarmerChat report for run #${{ github.run_number }}</h1><p>The run produced no HTML report (it may have failed before tests ran).</p>" > site/index.html
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
