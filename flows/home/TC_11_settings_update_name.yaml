@@ -57,7 +57,7 @@ tags:
     commands:
       - tapOn: "Select all"
 - eraseText: 1
-- inputText: "Kenya Farmer"
+- inputText: "Imran Tester"
 - hideKeyboard
 - tapOn:
     id: "settings_name_save_button"
@@ -68,5 +68,5 @@ tags:
     timeout: 10000
 - extendedWaitUntil:
     visible:
-      text: ".*Kenya Farmer.*"
+      text: ".*Imran Tester.*"
     timeout: 10000
